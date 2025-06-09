@@ -1,0 +1,26 @@
+# .bolt/ignore
+
+# Ignore test files
+src/pages/**/*.test.tsx
+src/pages/**/*.spec.tsx
+
+# Ignore HomePage if needed
+src/pages/HomePage.tsx
+src/pages/AboutPage.tsx
+src/pages/ContactPage.tsx
+src/pages/NotFoundPage.tsx
+src/pages/PrivacyPolicyPage.tsx
+src/pages/TermsOfServicePage.tsx
+src/pages/BlogPage.tsx
+src/pages/CommunityForumPage.tsx
+src/pages/HelpCenterPage.tsx
+src/pages/ServerErrorPage.tsx
+src/pages/APIPage.tsx
+i18n.json
+
+# Ignore build output
+dist/
+out/
+i18n/
+
+

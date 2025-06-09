@@ -1,0 +1,250 @@
+{
+  "homepage": {
+    "hero": {
+      "badge": "Join 150K+ photographers worldwide",
+      "title": "Share Your Vision with the World",
+      "subtitle": "Discover, share, and get inspired by stunning photography from creators around the globe. Join the most vibrant visual community.",
+      "searchPlaceholder": "Search high-resolution photos",
+      "exploreButton": "Explore Photos",
+      "joinButton": "Join Free"
+    },
+    "stats": {
+      "photographers": {
+        "value": "150K+",
+        "label": "Photographers"
+      },
+      "photos": {
+        "value": "2.1M+",
+        "label": "Photos"
+      },
+      "downloads": {
+        "value": "50M+",
+        "label": "Downloads"
+      },
+      "countries": {
+        "value": "180+",
+        "label": "Countries"
+      }
+    },
+    "features": {
+      "title": "Everything You Need to",
+      "titleHighlight": "Showcase",
+      "subtitle": "Your Photography",
+      "description": "From high-quality uploads to powerful discovery tools, we provide everything you need to share your vision and connect with fellow photographers.",
+      "items": {
+        "highQuality": {
+          "title": "High-Quality Uploads",
+          "description": "Upload photos up to 100MP with lossless compression. Your work deserves to be seen in its full glory."
+        },
+        "smartDiscovery": {
+          "title": "Smart Discovery",
+          "description": "Our AI-powered algorithm helps your photos reach the right audience and get discovered by people who appreciate your style."
+        },
+        "globalCommunity": {
+          "title": "Global Community",
+          "description": "Connect with photographers from around the world. Share techniques, get feedback, and grow together."
+        },
+        "analytics": {
+          "title": "Detailed Analytics",
+          "description": "Track your photo performance, understand your audience, and see how your work impacts the community."
+        },
+        "licensing": {
+          "title": "Easy Licensing",
+          "description": "Monetize your work with our simple licensing system. Set your prices and earn from your photography."
+        },
+        "collections": {
+          "title": "Smart Collections",
+          "description": "Organize your work into beautiful collections. Create stories and showcase your photography journey."
+        }
+      }
+    },
+    "trending": {
+      "title": "Trending",
+      "titleHighlight": "Photos",
+      "subtitle": "Discover the most popular photos from our community this week",
+      "viewAll": "View All Trending"
+    },
+    "categories": {
+      "title": "Explore by",
+      "titleHighlight": "Category",
+      "subtitle": "Find inspiration across different photography styles and subjects",
+      "items": {
+        "nature": "Nature",
+        "portrait": "Portrait",
+        "street": "Street",
+        "architecture": "Architecture",
+        "travel": "Travel",
+        "abstract": "Abstract"
+      }
+    },
+    "testimonials": {
+      "title": "Loved by",
+      "titleHighlight": "Photographers",
+      "subtitle": "See what our community has to say about their experience",
+      "items": {
+        "sarah": {
+          "name": "Sarah Chen",
+          "role": "Landscape Photographer",
+          "content": "Pixinity has transformed how I share my work. The community is incredibly supportive and the platform makes my photos look stunning.",
+          "rating": 5
+        },
+        "marcus": {
+          "name": "Marcus Rodriguez",
+          "role": "Street Photographer",
+          "content": "The discovery algorithm is amazing. My photos are reaching audiences I never thought possible. It's like having a personal gallery curator.",
+          "rating": 5
+        },
+        "elena": {
+          "name": "Elena Kowalski",
+          "role": "Portrait Photographer",
+          "content": "I've tried many platforms, but Pixinity truly understands photographers. The quality, community, and tools are unmatched.",
+          "rating": 5
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Share Your",
+      "titleHighlight": "Vision",
+      "subtitle": "Join thousands of photographers who are already showcasing their work and building their audience on Pixinity.",
+      "uploadButton": "Start Uploading",
+      "exploreButton": "Explore Community"
+    }
+  },
+  "about": {
+    "hero": {
+      "badge": "Empowering photographers worldwide since 2019",
+      "title": "About",
+      "brandName": "Pixinity",
+      "description": "We're on a mission to democratize photography and create the world's most inspiring visual community. Every day, we help photographers share their vision, connect with others, and turn their passion into success.",
+      "watchStoryButton": "Watch Our Story",
+      "joinCommunityButton": "Join Our Community"
+    },
+    "stats": {
+      "activePhotographers": {
+        "value": "150K+",
+        "label": "Active Photographers"
+      },
+      "photosShared": {
+        "value": "2.1M+",
+        "label": "Photos Shared"
+      },
+      "countries": {
+        "value": "180+",
+        "label": "Countries"
+      },
+      "awardsWon": {
+        "value": "50K+",
+        "label": "Awards Won"
+      }
+    },
+    "mission": {
+      "title": "Our",
+      "titleHighlight": "Mission",
+      "description1": "We believe that every photographer, regardless of their experience level or background, deserves a platform where they can share their work, learn from others, and build meaningful connections within the creative community.",
+      "description2": "Pixinity isn't just a photo-sharing platform—it's a movement to celebrate visual storytelling, foster creativity, and make photography accessible to everyone, everywhere.",
+      "goals": {
+        "democratizing": "Democratizing access to photography tools and community",
+        "supporting": "Supporting photographers at every stage of their journey",
+        "building": "Building bridges between cultures through visual storytelling"
+      },
+      "goalCard": {
+        "title": "Our Goal",
+        "subtitle": "Inspire 1M photographers"
+      }
+    },
+    "values": {
+      "title": "Our",
+      "titleHighlight": "Values",
+      "subtitle": "These core principles guide everything we do and shape the community we're building together.",
+      "items": {
+        "passion": {
+          "title": "Passion for Photography",
+          "description": "We believe photography is more than capturing moments—it's about telling stories, evoking emotions, and connecting people across cultures."
+        },
+        "community": {
+          "title": "Community First",
+          "description": "Our platform is built by photographers, for photographers. Every feature is designed to help our community grow, learn, and succeed together."
+        },
+        "innovation": {
+          "title": "Innovation & Quality",
+          "description": "We constantly push the boundaries of what's possible, creating tools and experiences that empower photographers to reach their full potential."
+        },
+        "accessibility": {
+          "title": "Global Accessibility",
+          "description": "Photography is a universal language. We're committed to making our platform accessible to creators everywhere, regardless of background or location."
+        }
+      }
+    },
+    "team": {
+      "title": "Meet Our",
+      "titleHighlight": "Team",
+      "subtitle": "We're a diverse group of photographers, designers, engineers, and dreamers united by our love for visual storytelling.",
+      "members": {
+        "sarahChen": {
+          "name": "Sarah Chen",
+          "role": "Founder & CEO",
+          "bio": "Award-winning photographer with 15+ years of experience. Former National Geographic contributor."
+        },
+        "alexRodriguez": {
+          "name": "Alex Rodriguez",
+          "role": "CTO",
+          "bio": "Tech visionary who previously led engineering teams at Adobe and Google. Passionate about creative tools."
+        },
+        "mayaPatel": {
+          "name": "Maya Patel",
+          "role": "Head of Community",
+          "bio": "Documentary photographer and community builder. Dedicated to fostering inclusive creative spaces."
+        },
+        "davidKim": {
+          "name": "David Kim",
+          "role": "Head of Design",
+          "bio": "Award-winning UX designer with a background in visual arts. Believes in design that empowers creativity."
+        }
+      }
+    },
+    "timeline": {
+      "title": "Our",
+      "titleHighlight": "Journey",
+      "subtitle": "From a small startup to a global community—here are the key milestones that shaped Pixinity.",
+      "milestones": {
+        "2019": {
+          "year": "2019",
+          "title": "Pixinity Founded",
+          "description": "Started with a vision to democratize photography sharing"
+        },
+        "2020": {
+          "year": "2020",
+          "title": "10K Photographers",
+          "description": "Reached our first major community milestone"
+        },
+        "2021": {
+          "year": "2021",
+          "title": "Mobile App Launch",
+          "description": "Brought Pixinity to iOS and Android platforms"
+        },
+        "2022": {
+          "year": "2022",
+          "title": "1M Photos Shared",
+          "description": "Celebrated one million photos uploaded to our platform"
+        },
+        "2023": {
+          "year": "2023",
+          "title": "Global Expansion",
+          "description": "Launched in 50+ countries with localized experiences"
+        },
+        "2024": {
+          "year": "2024",
+          "title": "AI-Powered Features",
+          "description": "Introduced smart tagging and discovery algorithms"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to join our",
+      "titleHighlight": "story",
+      "subtitle": "Become part of a community that celebrates creativity, supports growth, and believes in the power of visual storytelling.",
+      "startJourneyButton": "Start Your Journey",
+      "exploreCommunityButton": "Explore Community"
+    }
+  }
+}

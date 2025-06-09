@@ -1,0 +1,250 @@
+{
+  "homepage": {
+    "hero": {
+      "badge": "Rejoignez plus de 150K+ photographes dans le monde entier",
+      "title": "Partagez votre vision avec le monde",
+      "subtitle": "Découvrez, partagez et inspirez-vous de photographies exceptionnelles de créateurs du monde entier. Rejoignez la communauté visuelle la plus dynamique.",
+      "searchPlaceholder": "Rechercher des photos haute résolution",
+      "exploreButton": "Explorer les photos",
+      "joinButton": "Inscription gratuite"
+    },
+    "stats": {
+      "photographers": {
+        "value": "150K+",
+        "label": "Photographes"
+      },
+      "photos": {
+        "value": "2,1M+",
+        "label": "Photos"
+      },
+      "downloads": {
+        "value": "50M+",
+        "label": "Téléchargements"
+      },
+      "countries": {
+        "value": "180+",
+        "label": "Pays"
+      }
+    },
+    "features": {
+      "title": "Tout ce dont vous avez besoin pour",
+      "titleHighlight": "Mettre en valeur",
+      "subtitle": "Votre photographie",
+      "description": "Des téléchargements de haute qualité aux outils de découverte puissants, nous fournissons tout ce dont vous avez besoin pour partager votre vision et vous connecter avec d'autres photographes.",
+      "items": {
+        "highQuality": {
+          "title": "Téléchargements haute qualité",
+          "description": "Téléchargez des photos jusqu'à 100MP avec compression sans perte. Votre travail mérite d'être vu dans toute sa splendeur."
+        },
+        "smartDiscovery": {
+          "title": "Découverte intelligente",
+          "description": "Notre algorithme alimenté par l'IA aide vos photos à atteindre le bon public et à être découvertes par des personnes qui apprécient votre style."
+        },
+        "globalCommunity": {
+          "title": "Communauté mondiale",
+          "description": "Connectez-vous avec des photographes du monde entier. Partagez des techniques, obtenez des retours et évoluez ensemble."
+        },
+        "analytics": {
+          "title": "Analyses détaillées",
+          "description": "Suivez les performances de vos photos, comprenez votre audience et voyez comment votre travail impacte la communauté."
+        },
+        "licensing": {
+          "title": "Licences simplifiées",
+          "description": "Monétisez votre travail avec notre système de licences simple. Fixez vos prix et gagnez de l'argent grâce à votre photographie."
+        },
+        "collections": {
+          "title": "Collections intelligentes",
+          "description": "Organisez votre travail en magnifiques collections. Créez des histoires et mettez en valeur votre parcours photographique."
+        }
+      }
+    },
+    "trending": {
+      "title": "Photos",
+      "titleHighlight": "tendance",
+      "subtitle": "Découvrez les photos les plus populaires de notre communauté cette semaine",
+      "viewAll": "Voir toutes les tendances"
+    },
+    "categories": {
+      "title": "Explorer par",
+      "titleHighlight": "catégorie",
+      "subtitle": "Trouvez l'inspiration à travers différents styles et sujets photographiques",
+      "items": {
+        "nature": "Nature",
+        "portrait": "Portrait",
+        "street": "Rue",
+        "architecture": "Architecture",
+        "travel": "Voyage",
+        "abstract": "Abstrait"
+      }
+    },
+    "testimonials": {
+      "title": "Adoré par les",
+      "titleHighlight": "photographes",
+      "subtitle": "Découvrez ce que notre communauté dit de son expérience",
+      "items": {
+        "sarah": {
+          "name": "Sarah Chen",
+          "role": "Photographe de paysages",
+          "content": "Pixinity a transformé ma façon de partager mon travail. La communauté est incroyablement solidaire et la plateforme met magnifiquement en valeur mes photos.",
+          "rating": 5
+        },
+        "marcus": {
+          "name": "Marcus Rodriguez",
+          "role": "Photographe de rue",
+          "content": "L'algorithme de découverte est incroyable. Mes photos atteignent des audiences que je n'aurais jamais cru possibles. C'est comme avoir un conservateur de galerie personnel.",
+          "rating": 5
+        },
+        "elena": {
+          "name": "Elena Kowalski",
+          "role": "Photographe portraitiste",
+          "content": "J'ai essayé de nombreuses plateformes, mais Pixinity comprend vraiment les photographes. La qualité, la communauté et les outils sont inégalés.",
+          "rating": 5
+        }
+      }
+    },
+    "cta": {
+      "title": "Prêt à partager votre",
+      "titleHighlight": "Vision",
+      "subtitle": "Rejoignez des milliers de photographes qui présentent déjà leur travail et développent leur audience sur Pixinity.",
+      "uploadButton": "Commencer à télécharger",
+      "exploreButton": "Explorer la communauté"
+    }
+  },
+  "about": {
+    "hero": {
+      "badge": "Soutenir les photographes du monde entier depuis 2019",
+      "title": "À propos",
+      "brandName": "Pixinity",
+      "description": "Notre mission est de démocratiser la photographie et de créer la communauté visuelle la plus inspirante au monde. Chaque jour, nous aidons les photographes à partager leur vision, à se connecter avec d'autres et à transformer leur passion en succès.",
+      "watchStoryButton": "Regarder notre histoire",
+      "joinCommunityButton": "Rejoindre notre communauté"
+    },
+    "stats": {
+      "activePhotographers": {
+        "value": "150K+",
+        "label": "Photographes actifs"
+      },
+      "photosShared": {
+        "value": "2,1M+",
+        "label": "Photos partagées"
+      },
+      "countries": {
+        "value": "180+",
+        "label": "Pays"
+      },
+      "awardsWon": {
+        "value": "50K+",
+        "label": "Prix remportés"
+      }
+    },
+    "mission": {
+      "title": "Notre",
+      "titleHighlight": "mission",
+      "description1": "Nous croyons que chaque photographe, quel que soit son niveau d'expérience ou son origine, mérite une plateforme où il peut partager son travail, apprendre des autres et créer des liens significatifs au sein de la communauté créative.",
+      "description2": "Pixinity n'est pas seulement une plateforme de partage de photos, c'est un mouvement pour célébrer la narration visuelle, encourager la créativité et rendre la photographie accessible à tous, partout.",
+      "goals": {
+        "democratizing": "Démocratiser l'accès aux outils de photographie et à la communauté",
+        "supporting": "Soutenir les photographes à chaque étape de leur parcours",
+        "building": "Construire des ponts entre les cultures grâce à la narration visuelle"
+      },
+      "goalCard": {
+        "title": "Notre objectif",
+        "subtitle": "Inspirer 1 million de photographes"
+      }
+    },
+    "values": {
+      "title": "Nos",
+      "titleHighlight": "valeurs",
+      "subtitle": "Ces principes fondamentaux guident tout ce que nous faisons et façonnent la communauté que nous construisons ensemble.",
+      "items": {
+        "passion": {
+          "title": "Passion pour la photographie",
+          "description": "Nous croyons que la photographie est plus que la capture de moments—c'est raconter des histoires, évoquer des émotions et connecter les personnes à travers les cultures."
+        },
+        "community": {
+          "title": "La communauté d'abord",
+          "description": "Notre plateforme est construite par des photographes, pour des photographes. Chaque fonctionnalité est conçue pour aider notre communauté à grandir, apprendre et réussir ensemble."
+        },
+        "innovation": {
+          "title": "Innovation et qualité",
+          "description": "Nous repoussons constamment les limites du possible, créant des outils et des expériences qui permettent aux photographes d'atteindre leur plein potentiel."
+        },
+        "accessibility": {
+          "title": "Accessibilité mondiale",
+          "description": "La photographie est un langage universel. Nous nous engageons à rendre notre plateforme accessible aux créateurs partout, indépendamment de leur origine ou de leur localisation."
+        }
+      }
+    },
+    "team": {
+      "title": "Rencontrez notre",
+      "titleHighlight": "équipe",
+      "subtitle": "Nous sommes un groupe diversifié de photographes, designers, ingénieurs et rêveurs unis par notre amour pour la narration visuelle.",
+      "members": {
+        "sarahChen": {
+          "name": "Sarah Chen",
+          "role": "Fondatrice et PDG",
+          "bio": "Photographe primée avec plus de 15 ans d'expérience. Ancienne contributrice pour National Geographic."
+        },
+        "alexRodriguez": {
+          "name": "Alex Rodriguez",
+          "role": "Directeur technique",
+          "bio": "Visionnaire technologique qui a précédemment dirigé des équipes d'ingénierie chez Adobe et Google. Passionné par les outils créatifs."
+        },
+        "mayaPatel": {
+          "name": "Maya Patel",
+          "role": "Responsable de la communauté",
+          "bio": "Photographe documentaire et bâtisseuse de communauté. Dédiée à la création d'espaces créatifs inclusifs."
+        },
+        "davidKim": {
+          "name": "David Kim",
+          "role": "Directeur du design",
+          "bio": "Designer UX primé avec une formation en arts visuels. Croit en un design qui favorise la créativité."
+        }
+      }
+    },
+    "timeline": {
+      "title": "Notre",
+      "titleHighlight": "Parcours",
+      "subtitle": "D'une petite startup à une communauté mondiale — voici les étapes clés qui ont façonné Pixinity.",
+      "milestones": {
+        "2019": {
+          "year": "2019",
+          "title": "Fondation de Pixinity",
+          "description": "Débuté avec une vision de démocratiser le partage de photographie"
+        },
+        "2020": {
+          "year": "2020",
+          "title": "10K photographes",
+          "description": "Atteinte de notre premier jalon communautaire majeur"
+        },
+        "2021": {
+          "year": "2021",
+          "title": "Lancement de l'application mobile",
+          "description": "Pixinity disponible sur les plateformes iOS et Android"
+        },
+        "2022": {
+          "year": "2022",
+          "title": "1M photos partagées",
+          "description": "Célébration d'un million de photos téléchargées sur notre plateforme"
+        },
+        "2023": {
+          "year": "2023",
+          "title": "Expansion mondiale",
+          "description": "Lancement dans plus de 50 pays avec des expériences localisées"
+        },
+        "2024": {
+          "year": "2024",
+          "title": "Fonctionnalités alimentées par l'IA",
+          "description": "Introduction d'algorithmes intelligents de balisage et de découverte"
+        }
+      }
+    },
+    "cta": {
+      "title": "Prêt à rejoindre notre",
+      "titleHighlight": "histoire",
+      "subtitle": "Devenez membre d'une communauté qui célèbre la créativité, soutient la croissance et croit au pouvoir de la narration visuelle.",
+      "startJourneyButton": "Commencez votre parcours",
+      "exploreCommunityButton": "Explorer la communauté"
+    }
+  }
+}

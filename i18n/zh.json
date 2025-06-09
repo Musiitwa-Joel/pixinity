@@ -1,0 +1,250 @@
+{
+  "homepage": {
+    "hero": {
+      "badge": "加入全球 150K+ 摄影师的行列",
+      "title": "与世界分享你的视觉",
+      "subtitle": "探索、分享并从全球创作者的惊艳摄影作品中汲取灵感。加入最具活力的视觉社区。",
+      "searchPlaceholder": "搜索高分辨率照片",
+      "exploreButton": "探索照片",
+      "joinButton": "免费加入"
+    },
+    "stats": {
+      "photographers": {
+        "value": "150K+",
+        "label": "摄影师"
+      },
+      "photos": {
+        "value": "2.1M+",
+        "label": "照片"
+      },
+      "downloads": {
+        "value": "50M+",
+        "label": "下载量"
+      },
+      "countries": {
+        "value": "180+",
+        "label": "覆盖国家"
+      }
+    },
+    "features": {
+      "title": "一切你需要的工具来",
+      "titleHighlight": "展示",
+      "subtitle": "你的摄影作品",
+      "description": "从高质量上传到强大的发现工具，我们提供你所需的一切，帮助你分享你的视觉并与其他摄影师建立联系。",
+      "items": {
+        "highQuality": {
+          "title": "高质量上传",
+          "description": "上传高达 100MP 的照片，支持无损压缩。你的作品值得以最完美的形式展现。"
+        },
+        "smartDiscovery": {
+          "title": "智能发现",
+          "description": "我们的 AI 算法帮助你的照片触达合适的观众，并被欣赏你风格的人发现。"
+        },
+        "globalCommunity": {
+          "title": "全球社区",
+          "description": "与来自世界各地的摄影师建立联系。分享技巧，获取反馈，共同成长。"
+        },
+        "analytics": {
+          "title": "详细分析",
+          "description": "追踪您的照片表现，了解您的观众，并查看您的作品如何影响社区。"
+        },
+        "licensing": {
+          "title": "轻松授权",
+          "description": "通过我们简单的授权系统将您的作品变现。设置您的价格，从摄影中赚取收益。"
+        },
+        "collections": {
+          "title": "智能合集",
+          "description": "将您的作品组织成精美的合集。创建故事，展示您的摄影旅程。"
+        }
+      }
+    },
+    "trending": {
+      "title": "热门",
+      "titleHighlight": "照片",
+      "subtitle": "发现本周我们社区中最受欢迎的照片",
+      "viewAll": "查看所有热门"
+    },
+    "categories": {
+      "title": "按",
+      "titleHighlight": "类别",
+      "subtitle": "在不同的摄影风格和主题中寻找灵感",
+      "items": {
+        "nature": "自然",
+        "portrait": "人像",
+        "street": "街拍",
+        "architecture": "建筑",
+        "travel": "旅行",
+        "abstract": "抽象"
+      }
+    },
+    "testimonials": {
+      "title": "深受",
+      "titleHighlight": "摄影师",
+      "subtitle": "看看我们的社区对他们的体验有何评价",
+      "items": {
+        "sarah": {
+          "name": "Sarah Chen",
+          "role": "风景摄影师",
+          "content": "Pixinity 改变了我分享作品的方式。社区非常支持我，而且平台让我的照片看起来非常出色。",
+          "rating": 5
+        },
+        "marcus": {
+          "name": "Marcus Rodriguez",
+          "role": "街头摄影师",
+          "content": "发现算法非常出色。我的照片正在接触到我从未想过的观众。这就像拥有一个私人画廊策展人。",
+          "rating": 5
+        },
+        "elena": {
+          "name": "Elena Kowalski",
+          "role": "人像摄影师",
+          "content": "我尝试过很多平台，但 Pixinity 真正理解摄影师。它的质量、社区和工具无与伦比。",
+          "rating": 5
+        }
+      }
+    },
+    "cta": {
+      "title": "准备好分享您的",
+      "titleHighlight": "愿景",
+      "subtitle": "加入成千上万已经在 Pixinity 上展示作品并建立观众群的摄影师。",
+      "uploadButton": "开始上传",
+      "exploreButton": "探索社区"
+    }
+  },
+  "about": {
+    "hero": {
+      "badge": "自 2019 年以来赋能全球摄影师",
+      "title": "关于",
+      "brandName": "Pixinity",
+      "description": "我们的使命是让摄影变得大众化，并创建全球最具启发性的视觉社区。每天，我们帮助摄影师分享他们的视角，与他人建立联系，并将他们的热情转化为成功。",
+      "watchStoryButton": "观看我们的故事",
+      "joinCommunityButton": "加入我们的社区"
+    },
+    "stats": {
+      "activePhotographers": {
+        "value": "150K+",
+        "label": "活跃摄影师"
+      },
+      "photosShared": {
+        "value": "2.1M+",
+        "label": "分享的照片"
+      },
+      "countries": {
+        "value": "180+",
+        "label": "覆盖国家"
+      },
+      "awardsWon": {
+        "value": "50K+",
+        "label": "获奖次数"
+      }
+    },
+    "mission": {
+      "title": "我们的",
+      "titleHighlight": "使命",
+      "description1": "我们相信，每一位摄影师，无论其经验水平或背景如何，都值得拥有一个平台，在这里他们可以分享作品、向他人学习，并在创意社区中建立有意义的联系。",
+      "description2": "Pixinity 不仅仅是一个照片分享平台——它是一场庆祝视觉故事、激发创意并让摄影变得人人可及的运动。",
+      "goals": {
+        "democratizing": "让摄影工具和社区的使用更加大众化",
+        "supporting": "支持摄影师在其旅程的每个阶段",
+        "building": "通过视觉故事搭建文化之间的桥梁"
+      },
+      "goalCard": {
+        "title": "我们的目标",
+        "subtitle": "激励 100 万摄影师"
+      }
+    },
+    "values": {
+      "title": "我们的",
+      "titleHighlight": "价值观",
+      "subtitle": "这些核心原则指导着我们的一切，并塑造了我们共同建立的社区。",
+      "items": {
+        "passion": {
+          "title": "对摄影的热情",
+          "description": "我们相信摄影不仅仅是捕捉瞬间——它是讲述故事、唤起情感以及跨文化连接人们的方式。"
+        },
+        "community": {
+          "title": "社区至上",
+          "description": "我们的平台由摄影师为摄影师打造。每一项功能都旨在帮助我们的社区共同成长、学习和成功。"
+        },
+        "innovation": {
+          "title": "创新与品质",
+          "description": "我们不断突破可能性的界限，创造工具和体验，赋能摄影师充分发挥他们的潜力。"
+        },
+        "accessibility": {
+          "title": "全球可及性",
+          "description": "摄影是一种通用语言。我们致力于让我们的平台对所有创作者开放，无论他们的背景或所在地。"
+        }
+      }
+    },
+    "team": {
+      "title": "认识我们的",
+      "titleHighlight": "团队",
+      "subtitle": "我们是一群多元化的摄影师、设计师、工程师和梦想家，由对视觉故事的热爱而团结在一起。",
+      "members": {
+        "sarahChen": {
+          "name": "Sarah Chen",
+          "role": "创始人兼首席执行官",
+          "bio": "获奖摄影师，拥有超过15年的经验。曾为《国家地理》供稿。"
+        },
+        "alexRodriguez": {
+          "name": "Alex Rodriguez",
+          "role": "首席技术官",
+          "bio": "技术愿景者，曾领导 Adobe 和 Google 的工程团队。热衷于创意工具。"
+        },
+        "mayaPatel": {
+          "name": "Maya Patel",
+          "role": "社区负责人",
+          "bio": "纪录片摄影师和社区建设者。致力于促进包容性的创意空间。"
+        },
+        "davidKim": {
+          "name": "David Kim",
+          "role": "设计负责人",
+          "bio": "获奖的用户体验设计师，拥有视觉艺术背景。相信设计能够赋能创意。"
+        }
+      }
+    },
+    "timeline": {
+      "title": "我们的",
+      "titleHighlight": "旅程",
+      "subtitle": "从一家小型初创公司到一个全球社区——以下是塑造 Pixinity 的关键里程碑。",
+      "milestones": {
+        "2019": {
+          "year": "2019",
+          "title": "Pixinity 成立",
+          "description": "以让摄影分享大众化为愿景开始"
+        },
+        "2020": {
+          "year": "2020",
+          "title": "10K 摄影师",
+          "description": "达成我们的第一个重要社区里程碑"
+        },
+        "2021": {
+          "year": "2021",
+          "title": "移动应用发布",
+          "description": "将 Pixinity 带到 iOS 和 Android 平台"
+        },
+        "2022": {
+          "year": "2022",
+          "title": "100 万张照片分享",
+          "description": "庆祝平台上传照片数量达到一百万"
+        },
+        "2023": {
+          "year": "2023",
+          "title": "全球扩展",
+          "description": "在 50 多个国家推出本地化体验"
+        },
+        "2024": {
+          "year": "2024",
+          "title": "AI 驱动功能",
+          "description": "引入智能标签和发现算法"
+        }
+      }
+    },
+    "cta": {
+      "title": "准备好加入我们的",
+      "titleHighlight": "故事",
+      "subtitle": "成为一个庆祝创意、支持成长并相信视觉故事力量的社区的一员。",
+      "startJourneyButton": "开启你的旅程",
+      "exploreCommunityButton": "探索社区"
+    }
+  }
+}
