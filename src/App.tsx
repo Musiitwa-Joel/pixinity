@@ -8,6 +8,7 @@ import Footer from "./components/Layout/Footer";
 import HomePage from "./pages/HomePage";
 import ExplorePage from "./pages/ExplorePage";
 import CollectionsPage from "./pages/CollectionsPage";
+import CollectionDetailPage from "./pages/CollectionDetailPage";
 import SearchPage from "./pages/SearchPage";
 import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -49,6 +50,10 @@ function App() {
                   {/* Core App Routes */}
                   <Route path="/explore" element={<ExplorePage />} />
                   <Route path="/collections" element={<CollectionsPage />} />
+                  <Route
+                    path="/collections/:id"
+                    element={<CollectionDetailPage />}
+                  />
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="/trending" element={<ExplorePage />} />
                   <Route path="/featured" element={<ExplorePage />} />

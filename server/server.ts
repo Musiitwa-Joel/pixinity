@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
+import collectionsRoutes from "./routes/collections";
 import { testConnection } from "./database";
 
 // Load environment variables
@@ -30,6 +31,7 @@ testConnection();
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/collections", collectionsRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

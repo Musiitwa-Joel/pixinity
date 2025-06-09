@@ -17,6 +17,17 @@ src/pages/HelpCenterPage.tsx
 src/pages/ServerErrorPage.tsx
 src/pages/APIPage.tsx
 i18n.json
+src/pages/AnalyticsPage.tsx
+src/pages/CareersPage.tsx
+src/pages/ExplorePage.tsx
+src/pages/PhotoChallengesPage.tsx
+src/pages/PhotographersPage.tsx
+src/pages/ProfilePage.tsx
+src/pages/SavedPage.tsx
+src/pages/SearchPage.tsx
+src/pages/SettingsPage.tsx
+
+
 
 # Ignore build output
 dist/
