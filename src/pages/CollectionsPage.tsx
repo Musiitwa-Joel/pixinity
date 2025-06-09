@@ -101,11 +101,27 @@ const CollectionsPage: React.FC = () => {
   };
 
   const handleEditCollection = (collection: Collection) => {
+    console.log(
+      "Edit collection clicked:",
+      collection.id,
+      "Owner:",
+      collection.creator.id,
+      "Current user:",
+      user?.id
+    );
     setSelectedCollection(collection);
     setIsEditModalOpen(true);
   };
 
   const handleDeleteCollection = (collection: Collection) => {
+    console.log(
+      "Delete collection clicked:",
+      collection.id,
+      "Owner:",
+      collection.creator.id,
+      "Current user:",
+      user?.id
+    );
     setSelectedCollection(collection);
     setIsDeleteModalOpen(true);
   };

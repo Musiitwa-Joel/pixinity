@@ -1,21 +1,22 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import type React from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   Plus,
   Image,
   Lock,
-  Globe,
   Users,
   Camera,
-  Upload,
   Search,
   Check,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
 import { collectionsService } from "../../../server/services/collectionsService";
-import { Collection } from "../../types";
+import type { Collection } from "../../types";
 import toast from "react-hot-toast";
 
 interface CreateCollectionForm {
@@ -127,6 +128,13 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
   };
 
   const handleCreateCollection = async (data: CreateCollectionForm) => {
+    // Validate photos are selected
+    if (selectedPhotos.size === 0) {
+      toast.error("Please select at least one photo");
+      setStep("photos");
+      return;
+    }
+
     setIsCreating(true);
 
     try {
@@ -195,7 +203,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
           />
 
           <motion.div
-            className="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden"
+            className="relative max-w-4xl w-full h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
@@ -251,8 +259,11 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
               </div>
             </div>
 
-            <form onSubmit={handleSubmit(handleCreateCollection)}>
-              <div className="max-h-[calc(90vh-200px)] overflow-y-auto">
+            <form
+              onSubmit={handleSubmit(handleCreateCollection)}
+              className="flex flex-col h-[calc(100%-10rem)]"
+            >
+              <div className="flex-1 overflow-y-auto min-h-0">
                 {/* Step 1: Collection Details */}
                 {step === "details" && (
                   <motion.div
@@ -268,13 +279,39 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                       <input
                         {...register("title", {
                           required: "Title is required",
+                          minLength: {
+                            value: 3,
+                            message: "Title must be at least 3 characters",
+                          },
+                          maxLength: {
+                            value: 50,
+                            message: "Title cannot exceed 50 characters",
+                          },
                         })}
                         type="text"
-                        className="input"
+                        className={`input w-full ${
+                          errors.title
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-neutral-200 focus:ring-primary-500 focus:border-primary-500"
+                        }`}
                         placeholder="Give your collection a name"
                       />
                       {errors.title && (
-                        <p className="mt-1 text-sm text-error-600">
+                        <p className="mt-1 text-sm text-red-600 flex items-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
+                          </svg>
                           {errors.title.message}
                         </p>
                       )}
@@ -285,11 +322,52 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                         Description
                       </label>
                       <textarea
-                        {...register("description")}
+                        {...register("description", {
+                          maxLength: {
+                            value: 500,
+                            message: "Description cannot exceed 500 characters",
+                          },
+                        })}
                         rows={4}
-                        className="input resize-none"
+                        className={`input resize-none ${
+                          errors.description
+                            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                            : "border-neutral-200 focus:ring-primary-500 focus:border-primary-500"
+                        }`}
                         placeholder="Describe what this collection is about..."
                       />
+                      {errors.description && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
+                          </svg>
+                          {errors.description.message}
+                        </p>
+                      )}
+                      <div className="flex justify-end">
+                        <span
+                          className={`text-xs ${
+                            watch("description")?.length > 450
+                              ? watch("description")?.length > 500
+                                ? "text-red-600"
+                                : "text-amber-600"
+                              : "text-neutral-500"
+                          }`}
+                        >
+                          {watch("description")?.length || 0}/500
+                        </span>
+                      </div>
                     </div>
 
                     <div className="space-y-4">
@@ -388,6 +466,25 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                       {selectedPhotos.size} photo
                       {selectedPhotos.size !== 1 ? "s" : ""} selected
                     </div>
+                    {step === "photos" && selectedPhotos.size === 0 && (
+                      <p className="mb-4 text-sm text-amber-600 flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                        Please select at least one photo
+                      </p>
+                    )}
 
                     {/* Photos Grid */}
                     {isLoadingPhotos ? (
@@ -408,7 +505,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                             onClick={() => handlePhotoToggle(photo.id)}
                           >
                             <img
-                              src={photo.url}
+                              src={photo.url || "/placeholder.svg"}
                               alt={photo.title}
                               className="w-full h-full object-cover rounded-lg"
                             />
@@ -514,7 +611,22 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="btn-primary"
+                      disabled={
+                        (step === "details" &&
+                          (!watch("title") ||
+                            !!errors.title ||
+                            !!errors.description)) ||
+                        (step === "photos" && selectedPhotos.size === 0)
+                      }
+                      className={`btn-primary ${
+                        (step === "details" &&
+                          (!watch("title") ||
+                            !!errors.title ||
+                            !!errors.description)) ||
+                        (step === "photos" && selectedPhotos.size === 0)
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
                     >
                       Next
                     </button>

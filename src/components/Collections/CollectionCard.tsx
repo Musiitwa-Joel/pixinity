@@ -17,6 +17,7 @@ import {
 import { Link } from "react-router-dom";
 import { Collection } from "../../types";
 import { useAuth } from "../../contexts/AuthContext";
+import toast from "react-hot-toast";
 
 interface CollectionCardProps {
   collection: Collection;
@@ -35,7 +36,24 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const isOwner = user?.id === collection.creator.id;
+  // Check if current user is the owner - ensure both IDs are strings
+  const currentUserId = user?.id?.toString();
+  const creatorId = collection.creator.id?.toString();
+  const isOwner = currentUserId === creatorId;
+
+  // Debug logging
+  console.log("CollectionCard Debug:", {
+    collectionId: collection.id,
+    collectionTitle: collection.title,
+    creatorId: creatorId,
+    currentUserId: currentUserId,
+    isOwner,
+    isAuthenticated: !!user,
+    userObject: user,
+    creatorObject: collection.creator,
+    rawCreatorId: collection.creator.id,
+    rawUserId: user?.id,
+  });
 
   const handleShare = () => {
     if (navigator.share) {
@@ -48,6 +66,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
       navigator.clipboard.writeText(
         window.location.origin + `/collections/${collection.id}`
       );
+      toast.success("Link copied to clipboard");
     }
     setIsMenuOpen(false);
   };
@@ -56,6 +75,19 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
     navigator.clipboard.writeText(
       window.location.origin + `/collections/${collection.id}`
     );
+    toast.success("Link copied to clipboard");
+    setIsMenuOpen(false);
+  };
+
+  const handleEdit = () => {
+    console.log("Edit button clicked for collection:", collection.id);
+    onEdit(collection);
+    setIsMenuOpen(false);
+  };
+
+  const handleDelete = () => {
+    console.log("Delete button clicked for collection:", collection.id);
+    onDelete(collection);
     setIsMenuOpen(false);
   };
 
@@ -66,8 +98,15 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
       transition={{ duration: 0.6, delay: index * 0.1 }}
       whileHover={{ y: -4 }}
       className="group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => {
+        console.log("Mouse entered collection card:", collection.id);
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        console.log("Mouse left collection card:", collection.id);
+        setIsHovered(false);
+        setIsMenuOpen(false); // Close menu when leaving card
+      }}
     >
       <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-neutral-200">
         {/* Cover Image */}
@@ -122,83 +161,109 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
             {collection.photosCount} photos
           </div>
 
-          {/* Menu Button */}
-          <motion.div
-            className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-            initial={false}
-            animate={{ opacity: isHovered ? 1 : 0 }}
-          >
-            <div className="relative">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsMenuOpen(!isMenuOpen);
-                }}
-                className="p-2 bg-white/80 backdrop-blur-sm rounded-full text-neutral-700 hover:bg-white transition-colors"
-              >
-                <MoreVertical className="h-4 w-4" />
-              </button>
-
-              {isMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  className="absolute bottom-full right-0 mb-2 w-48 bg-white rounded-xl shadow-lg border border-neutral-200 py-2 z-10"
+          {/* Menu Button - Always show when hovered, with debug info */}
+          <div className="absolute bottom-4 right-4">
+            <div
+              className={`transition-opacity duration-300 ${
+                isHovered ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <div className="relative">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log(
+                      "Menu button clicked, current state:",
+                      isMenuOpen
+                    );
+                    setIsMenuOpen(!isMenuOpen);
+                  }}
+                  className="p-2 bg-white/80 backdrop-blur-sm rounded-full text-neutral-700 hover:bg-white transition-colors"
                 >
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleShare();
-                    }}
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 w-full text-left"
+                  <MoreVertical className="h-4 w-4" />
+                </button>
+
+                {/* Debug indicator */}
+                {isOwner && (
+                  <div className="absolute -top-8 -left-8 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                    Owner
+                  </div>
+                )}
+
+                {isMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    className="absolute bottom-full right-0 mb-2 w-48 bg-white rounded-xl shadow-lg border border-neutral-200 py-2 z-50"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <Share2 className="h-4 w-4" />
-                    <span>Share</span>
-                  </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleShare();
+                      }}
+                      className="flex items-center space-x-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 w-full text-left"
+                    >
+                      <Share2 className="h-4 w-4" />
+                      <span>Share</span>
+                    </button>
 
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleCopyLink();
-                    }}
-                    className="flex items-center space-x-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 w-full text-left"
-                  >
-                    <Copy className="h-4 w-4" />
-                    <span>Copy Link</span>
-                  </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleCopyLink();
+                      }}
+                      className="flex items-center space-x-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 w-full text-left"
+                    >
+                      <Copy className="h-4 w-4" />
+                      <span>Copy Link</span>
+                    </button>
 
-                  {isOwner && (
-                    <>
-                      <div className="border-t border-neutral-100 my-1" />
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          onEdit(collection);
-                          setIsMenuOpen(false);
-                        }}
-                        className="flex items-center space-x-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 w-full text-left"
-                      >
-                        <Edit3 className="h-4 w-4" />
-                        <span>Edit</span>
-                      </button>
+                    {/* Owner Actions - with debug info */}
+                    {isOwner ? (
+                      <>
+                        <div className="border-t border-neutral-100 my-1" />
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleEdit();
+                          }}
+                          className="flex items-center space-x-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 w-full text-left"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                          <span>Edit Collection</span>
+                        </button>
 
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          onDelete(collection);
-                          setIsMenuOpen(false);
-                        }}
-                        className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span>Delete</span>
-                      </button>
-                    </>
-                  )}
-                </motion.div>
-              )}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDelete();
+                          }}
+                          className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span>Delete Collection</span>
+                        </button>
+                      </>
+                    ) : (
+                      <div className="px-4 py-2 text-xs text-neutral-500 italic">
+                        Not owner - no edit options
+                        <br />
+                        Current: {currentUserId}
+                        <br />
+                        Creator: {creatorId}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Stats Overlay */}
           <motion.div

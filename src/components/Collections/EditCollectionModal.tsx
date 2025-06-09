@@ -73,16 +73,19 @@ const EditCollectionModal: React.FC<EditCollectionModalProps> = ({
   const isPrivate = watch("isPrivate");
 
   useEffect(() => {
-    if (collection) {
+    if (collection && isOpen) {
+      console.log("Setting up edit modal for collection:", collection);
       reset({
         title: collection.title,
         description: collection.description || "",
         isPrivate: collection.isPrivate,
         isCollaborative: collection.isCollaborative,
       });
-      setCollectionPhotos(new Set(collection.photos.map((photo) => photo.id)));
+      setCollectionPhotos(
+        new Set(collection.photos?.map((photo) => photo.id) || [])
+      );
     }
-  }, [collection, reset]);
+  }, [collection, reset, isOpen]);
 
   // Load user's photos when photos tab is active
   useEffect(() => {
@@ -139,11 +142,16 @@ const EditCollectionModal: React.FC<EditCollectionModalProps> = ({
   };
 
   const handleUpdateCollection = async (data: EditCollectionForm) => {
-    if (!collection) return;
+    if (!collection) {
+      console.error("No collection to update");
+      return;
+    }
 
     setIsUpdating(true);
 
     try {
+      console.log("Updating collection:", collection.id, "with data:", data);
+
       const updateData = {
         title: data.title,
         description: data.description,
@@ -151,10 +159,17 @@ const EditCollectionModal: React.FC<EditCollectionModalProps> = ({
         photoIds: Array.from(collectionPhotos),
       };
 
-      const updatedCollection = await collectionsService.updateCollection(
-        collection.id,
-        updateData
-      );
+      await collectionsService.updateCollection(collection.id, updateData);
+
+      // Create updated collection object for callback
+      const updatedCollection: Collection = {
+        ...collection,
+        title: data.title,
+        description: data.description,
+        isPrivate: data.isPrivate,
+        photosCount: collectionPhotos.size,
+        updatedAt: new Date(),
+      };
 
       onCollectionUpdated(updatedCollection);
       toast.success("Collection updated successfully!");
@@ -167,7 +182,18 @@ const EditCollectionModal: React.FC<EditCollectionModalProps> = ({
     }
   };
 
-  if (!collection) return null;
+  const handleClose = () => {
+    console.log("Closing edit modal");
+    setActiveTab("details");
+    setSearchQuery("");
+    setUserPhotos([]);
+    onClose();
+  };
+
+  if (!collection) {
+    console.log("No collection provided to edit modal");
+    return null;
+  }
 
   return (
     <AnimatePresence>
@@ -183,7 +209,7 @@ const EditCollectionModal: React.FC<EditCollectionModalProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
           />
 
           <motion.div
@@ -204,7 +230,7 @@ const EditCollectionModal: React.FC<EditCollectionModalProps> = ({
                 </p>
               </div>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="p-2 text-neutral-400 hover:text-neutral-600 transition-colors"
               >
                 <X className="h-6 w-6" />
@@ -254,11 +280,11 @@ const EditCollectionModal: React.FC<EditCollectionModalProps> = ({
                           required: "Title is required",
                         })}
                         type="text"
-                        className="input"
+                        className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-white/80 backdrop-blur-sm"
                         placeholder="Give your collection a name"
                       />
                       {errors.title && (
-                        <p className="mt-1 text-sm text-error-600">
+                        <p className="mt-1 text-sm text-red-600">
                           {errors.title.message}
                         </p>
                       )}
@@ -271,7 +297,7 @@ const EditCollectionModal: React.FC<EditCollectionModalProps> = ({
                       <textarea
                         {...register("description")}
                         rows={4}
-                        className="input resize-none"
+                        className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 bg-white/80 backdrop-blur-sm resize-none"
                         placeholder="Describe what this collection is about..."
                       />
                     </div>
@@ -454,14 +480,18 @@ const EditCollectionModal: React.FC<EditCollectionModalProps> = ({
 
               {/* Footer */}
               <div className="flex items-center justify-end p-6 border-t border-neutral-200 bg-neutral-50 space-x-3">
-                <button type="button" onClick={onClose} className="btn-outline">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:scale-105 active:scale-95 border-2 border-neutral-300 text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400 focus:ring-neutral-500 backdrop-blur-sm"
+                >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
                   disabled={isUpdating}
-                  className="btn-primary"
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:scale-105 active:scale-95 bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 focus:ring-primary-500 shadow-lg hover:shadow-xl"
                 >
                   {isUpdating ? (
                     <div className="flex items-center">

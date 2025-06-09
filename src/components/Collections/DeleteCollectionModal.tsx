@@ -22,17 +22,20 @@ const DeleteCollectionModal: React.FC<DeleteCollectionModalProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!collection || confirmText !== collection.title) return;
+    if (!collection || confirmText !== collection.title) {
+      toast.error("Please type the collection title to confirm");
+      return;
+    }
 
     setIsDeleting(true);
 
     try {
+      console.log("Deleting collection:", collection.id);
       await collectionsService.deleteCollection(collection.id);
 
       onCollectionDeleted(collection.id);
       toast.success("Collection deleted successfully");
-      onClose();
-      setConfirmText("");
+      handleClose();
     } catch (error: any) {
       console.error("Delete collection error:", error);
       toast.error(error.message || "Failed to delete collection");
@@ -42,11 +45,15 @@ const DeleteCollectionModal: React.FC<DeleteCollectionModalProps> = ({
   };
 
   const handleClose = () => {
+    console.log("Closing delete modal");
     setConfirmText("");
     onClose();
   };
 
-  if (!collection) return null;
+  if (!collection) {
+    console.log("No collection provided to delete modal");
+    return null;
+  }
 
   const isConfirmValid = confirmText === collection.title;
 
@@ -138,7 +145,7 @@ const DeleteCollectionModal: React.FC<DeleteCollectionModalProps> = ({
               <div className="flex space-x-3">
                 <button
                   onClick={handleClose}
-                  className="flex-1 btn-outline"
+                  className="flex-1 inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:scale-105 active:scale-95 border-2 border-neutral-300 text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400 focus:ring-neutral-500 backdrop-blur-sm"
                   disabled={isDeleting}
                 >
                   Cancel
@@ -146,7 +153,7 @@ const DeleteCollectionModal: React.FC<DeleteCollectionModalProps> = ({
                 <button
                   onClick={handleDelete}
                   disabled={!isConfirmValid || isDeleting}
-                  className="flex-1 btn bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 inline-flex items-center justify-center px-6 py-3 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:scale-105 active:scale-95 bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                 >
                   {isDeleting ? (
                     <div className="flex items-center justify-center">

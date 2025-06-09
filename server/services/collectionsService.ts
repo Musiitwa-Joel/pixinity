@@ -6,6 +6,7 @@ export interface CollectionFilters {
   sort?: "newest" | "oldest" | "photos";
   limit?: number;
   offset?: number;
+  user_id?: string;
 }
 
 export interface CreateCollectionData {

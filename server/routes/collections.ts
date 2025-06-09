@@ -117,7 +117,7 @@ router.get("/", async (req, res) => {
 
     // Transform data to match frontend expectations
     const transformedCollections = collections.map((collection) => ({
-      id: collection.uuid || collection.id.toString(), // Use UUID if available, fallback to ID
+      id: collection.uuid || collection.id.toString(),
       title: collection.name,
       description: collection.description,
       coverPhoto: collection.cover_photo_url
@@ -129,7 +129,7 @@ router.get("/", async (req, res) => {
         : null,
       photosCount: collection.photo_count,
       isPrivate: Boolean(collection.is_private),
-      isCollaborative: false, // Will implement later
+      isCollaborative: false,
       creator: {
         id: collection.user_id.toString(),
         username: collection.username,
@@ -232,8 +232,8 @@ router.get("/:identifier", async (req, res) => {
           : "square",
       category: photo.categories?.split(",")[0] || "Other",
       tags: photo.tags ? photo.tags.split(",") : [],
-      color: "#000000", // Default color, could be extracted from image
-      license: "free", // Default license
+      color: "#000000",
+      license: "free",
       photographer: {
         id: photo.user_id.toString(),
         username: photo.photographer_username,
@@ -345,7 +345,7 @@ router.post("/", requireAuth, async (req, res) => {
       id: collection.uuid,
       title: collection.name,
       description: collection.description,
-      coverPhoto: null, // Will be set if photos were added
+      coverPhoto: null,
       photosCount: collection.photo_count,
       isPrivate: Boolean(collection.is_private),
       isCollaborative: false,
