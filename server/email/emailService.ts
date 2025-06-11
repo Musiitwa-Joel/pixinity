@@ -55,7 +55,7 @@ let transporter: nodemailer.Transporter | null = null;
 const getTransporter = async (): Promise<nodemailer.Transporter> => {
   if (!transporter) {
     const config = await getEmailConfig();
-    transporter = nodemailer.createTransporter(config);
+    transporter = nodemailer.createTransport(config);
 
     // Log configuration (without password)
     const logConfig = {
@@ -417,6 +417,61 @@ export const sendAnalyticsEmail = async (
   }
 };
 
+// Send collaboration invitation email
+export const sendCollaborationInviteEmail = async (
+  to: string,
+  data: {
+    collectionTitle: string;
+    collectionId: string;
+    otpCode: string;
+    inviterName: string;
+    inviterUsername: string;
+    expiresAt: string;
+    isNewUser: boolean;
+  }
+): Promise<boolean> => {
+  try {
+    console.log(`Preparing collaboration invitation email to ${to}...`);
+
+    // Load and prepare template
+    let template = loadTemplate("collaboration-invite");
+
+    // Replace placeholders
+    template = replacePlaceholders(template, {
+      collectionTitle: data.collectionTitle,
+      collectionId: data.collectionId,
+      otpCode: data.otpCode,
+      inviterName: data.inviterName,
+      inviterUsername: data.inviterUsername,
+      expiresAt: data.expiresAt,
+      isNewUser: data.isNewUser,
+      currentYear: new Date().getFullYear().toString(),
+    });
+
+    // Get transporter
+    const transport = await getTransporter();
+
+    // Send email
+    const info = await transport.sendMail({
+      from: `"Pixinity Collaborations" <${transport.options.auth?.user}>`,
+      to,
+      subject: `You're invited to collaborate on "${data.collectionTitle}"`,
+      html: template,
+    });
+
+    console.log(`Collaboration invitation email sent: ${info.messageId}`);
+
+    // If using Ethereal, provide preview URL
+    if (transport.options.host === "smtp.ethereal.email") {
+      console.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error sending collaboration invitation email:", error);
+    return false;
+  }
+};
 // Verify email setup
 export const verifyEmailSetup = async (): Promise<boolean> => {
   try {
@@ -435,5 +490,6 @@ export default {
   sendLoginNotificationEmail,
   sendPhotoPublishedEmail,
   sendAnalyticsEmail,
+  sendCollaborationInviteEmail,
   verifyEmailSetup,
 };

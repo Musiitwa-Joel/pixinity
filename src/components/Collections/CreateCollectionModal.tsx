@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +16,7 @@ import {
   Send,
   Shield,
   Globe,
+  Settings,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
@@ -55,9 +54,9 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
   onCollectionCreated,
 }) => {
   const { user } = useAuth();
-  const [step, setStep] = useState<"details" | "photos" | "collaborators">(
-    "details"
-  );
+  const [step, setStep] = useState<
+    "details" | "settings" | "photos" | "collaborators"
+  >("details");
   const [selectedPhotos, setSelectedPhotos] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -183,9 +182,10 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
         title: data.title,
         description: data.description,
         isPrivate: data.isPrivate,
-        isCollaborative: data.isCollaborative,
+        isCollaborative: data.isCollaborative && !data.isPrivate,
         photoIds: Array.from(selectedPhotos),
-        collaboratorEmails: data.isCollaborative ? collaboratorEmails : [],
+        collaboratorEmails:
+          data.isCollaborative && !data.isPrivate ? collaboratorEmails : [],
       };
 
       const newCollection = await collectionsService.createCollection(
@@ -194,7 +194,11 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
 
       onCollectionCreated(newCollection);
 
-      if (data.isCollaborative && collaboratorEmails.length > 0) {
+      if (
+        data.isCollaborative &&
+        !data.isPrivate &&
+        collaboratorEmails.length > 0
+      ) {
         toast.success(
           `Collection created! Invitations sent to ${
             collaboratorEmails.length
@@ -226,18 +230,32 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
 
   const handleNext = () => {
     if (step === "details") {
+      setStep("settings");
+    } else if (step === "settings") {
       setStep("photos");
     } else if (step === "photos") {
-      setStep("collaborators");
+      if (watch("isCollaborative") && !watch("isPrivate")) {
+        setStep("collaborators");
+      } else {
+        // If not collaborative, skip to submission
+        handleSubmit(handleCreateCollection)();
+      }
     }
   };
 
   const handleBack = () => {
-    if (step === "photos") {
+    if (step === "settings") {
       setStep("details");
+    } else if (step === "photos") {
+      setStep("settings");
     } else if (step === "collaborators") {
       setStep("photos");
     }
+  };
+
+  const handleFinalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit(handleCreateCollection)();
   };
 
   return (
@@ -287,6 +305,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
               <div className="flex items-center space-x-4">
                 {[
                   { id: "details", label: "Details", icon: Camera },
+                  { id: "settings", label: "Settings", icon: Settings },
                   { id: "photos", label: "Add Photos", icon: Image },
                   { id: "collaborators", label: "Collaborators", icon: Users },
                 ].map((stepItem, index) => (
@@ -296,7 +315,12 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                         step === stepItem.id
                           ? "bg-primary-500 text-white"
                           : index <
-                            ["details", "photos", "collaborators"].indexOf(step)
+                            [
+                              "details",
+                              "settings",
+                              "photos",
+                              "collaborators",
+                            ].indexOf(step)
                           ? "bg-green-100 text-green-700"
                           : "bg-neutral-200 text-neutral-500"
                       }`}
@@ -306,7 +330,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                         {stepItem.label}
                       </span>
                     </div>
-                    {index < 2 && (
+                    {index < 3 && (
                       <div className="w-8 h-px bg-neutral-300 mx-2" />
                     )}
                   </div>
@@ -314,10 +338,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
               </div>
             </div>
 
-            <form
-              onSubmit={handleSubmit(handleCreateCollection)}
-              className="flex flex-col h-[calc(100%-10rem)]"
-            >
+            <div className="flex flex-col h-[calc(100%-10rem)]">
               <div className="flex-1 overflow-y-auto min-h-0">
                 {/* Step 1: Collection Details */}
                 {step === "details" && (
@@ -424,7 +445,17 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                         </span>
                       </div>
                     </div>
+                  </motion.div>
+                )}
 
+                {/* Step 2: Collection Settings */}
+                {step === "settings" && (
+                  <motion.div
+                    className="p-6 space-y-6"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-neutral-900">
                         Collection Settings
@@ -437,7 +468,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                             type="checkbox"
                             className="mt-1 text-primary-600 focus:ring-primary-500 rounded"
                           />
-                          <div className="flex-1">
+                          <div>
                             <div className="flex items-center space-x-2 mb-1">
                               <Lock className="h-4 w-4 text-neutral-500" />
                               <span className="font-medium text-neutral-900">
@@ -525,7 +556,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                   </motion.div>
                 )}
 
-                {/* Step 2: Add Photos */}
+                {/* Step 3: Add Photos */}
                 {step === "photos" && (
                   <motion.div
                     className="p-6"
@@ -633,7 +664,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                   </motion.div>
                 )}
 
-                {/* Step 3: Collaborators */}
+                {/* Step 4: Collaborators */}
                 {step === "collaborators" && (
                   <motion.div
                     className="p-6"
@@ -782,7 +813,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                         <Users className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
                         <p className="mb-2">Collaboration is disabled</p>
                         <p className="text-sm">
-                          Go back to the details step and enable "Collaborative
+                          Go back to the settings step and enable "Collaborative
                           Collection" to invite collaborators.
                         </p>
                       </div>
@@ -816,7 +847,8 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
 
                   {step === "collaborators" ? (
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={handleFinalSubmit}
                       disabled={isCreating}
                       className="btn-primary"
                     >
@@ -858,7 +890,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                   )}
                 </div>
               </div>
-            </form>
+            </div>
           </motion.div>
         </motion.div>
       )}

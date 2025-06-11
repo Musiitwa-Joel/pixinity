@@ -39,6 +39,14 @@ const CollectionsPage: React.FC = () => {
     "newest"
   );
   const [totalCollections, setTotalCollections] = useState(0);
+  const [stats, setStats] = useState({
+    total: 0,
+    public: 0,
+    private: 0,
+    mine: 0,
+    trending: 0,
+    collaborative: 0,
+  });
 
   // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -47,15 +55,9 @@ const CollectionsPage: React.FC = () => {
   const [selectedCollection, setSelectedCollection] =
     useState<Collection | null>(null);
 
-  const filters = [
-    { id: "all", label: "All Collections", count: totalCollections.toString() },
-    { id: "public", label: "Public", count: "0" },
-    { id: "private", label: "Private", count: "0" },
-    { id: "mine", label: "My Collections", count: "0" },
-  ];
-
   useEffect(() => {
     loadCollections();
+    loadStats();
   }, [activeFilter, searchQuery, sortBy, user]);
 
   const loadCollections = async () => {
@@ -84,20 +86,90 @@ const CollectionsPage: React.FC = () => {
     }
   };
 
+  const loadStats = async () => {
+    try {
+      // Load all collections to calculate stats
+      const allCollections = await collectionsService.getCollections({
+        limit: 1000,
+        offset: 0,
+      });
+
+      const publicCollections = await collectionsService.getCollections({
+        filter: "public",
+        limit: 1000,
+        offset: 0,
+      });
+
+      let privateCollections = { total: 0 };
+      let myCollections = { total: 0 };
+
+      if (user) {
+        privateCollections = await collectionsService.getCollections({
+          filter: "private",
+          user_id: user.id,
+          limit: 1000,
+          offset: 0,
+        });
+
+        myCollections = await collectionsService.getCollections({
+          filter: "mine",
+          user_id: user.id,
+          limit: 1000,
+          offset: 0,
+        });
+      }
+
+      // Calculate collaborative collections
+      const collaborativeCount = allCollections.collections.filter(
+        (c) => c.isCollaborative
+      ).length;
+
+      // Calculate trending (collections created in the last week with high activity)
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+      const trendingCount = allCollections.collections.filter((c) => {
+        const createdAt = new Date(c.createdAt);
+        return createdAt >= oneWeekAgo && c.photosCount > 0;
+      }).length;
+
+      setStats({
+        total: allCollections.total,
+        public: publicCollections.total,
+        private: privateCollections.total,
+        mine: myCollections.total,
+        trending: trendingCount,
+        collaborative: collaborativeCount,
+      });
+    } catch (error) {
+      console.error("Failed to load stats:", error);
+    }
+  };
+
+  const filters = [
+    { id: "all", label: "All Collections", count: stats.total.toString() },
+    { id: "public", label: "Public", count: stats.public.toString() },
+    { id: "private", label: "Private", count: stats.private.toString() },
+    { id: "mine", label: "My Collections", count: stats.mine.toString() },
+  ];
+
   const handleCollectionCreated = (newCollection: Collection) => {
     setCollections((prev) => [newCollection, ...prev]);
     setTotalCollections((prev) => prev + 1);
+    loadStats(); // Reload stats after creating a collection
   };
 
   const handleCollectionUpdated = (updatedCollection: Collection) => {
     setCollections((prev) =>
       prev.map((c) => (c.id === updatedCollection.id ? updatedCollection : c))
     );
+    loadStats(); // Reload stats after updating a collection
   };
 
   const handleCollectionDeleted = (collectionId: string) => {
     setCollections((prev) => prev.filter((c) => c.id !== collectionId));
     setTotalCollections((prev) => prev - 1);
+    loadStats(); // Reload stats after deleting a collection
   };
 
   const handleEditCollection = (collection: Collection) => {
@@ -191,7 +263,7 @@ const CollectionsPage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search collections..."
-              className="w-full pl-12 pr-4 py-3 bg-white border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              className="w-full sm:w-80 pl-12 pr-4 py-3 bg-white border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
             />
           </div>
 
@@ -275,19 +347,19 @@ const CollectionsPage: React.FC = () => {
           {[
             {
               icon: Grid3X3,
-              value: totalCollections.toString(),
+              value: stats.total.toString(),
               label: "Total Collections",
               color: "text-blue-500",
             },
             {
               icon: TrendingUp,
-              value: "0",
+              value: stats.trending.toString(),
               label: "Trending This Week",
               color: "text-green-500",
             },
             {
               icon: Users,
-              value: "0",
+              value: stats.collaborative.toString(),
               label: "Collaborative",
               color: "text-purple-500",
             },

@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import path from "path";
 import authRoutes from "./routes/auth";
 import collectionsRoutes from "./routes/collections";
+import collectionUploadsRoutes from "./routes/collectionUploads";
 import photosRoutes from "./routes/photos";
 import notificationsRoutes from "./routes/notifications";
 import analyticsRoutes from "./routes/analytics";
@@ -41,6 +42,7 @@ testConnection();
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/collections", collectionsRoutes);
+app.use("/api/collection-uploads", collectionUploadsRoutes);
 app.use("/api/photos", photosRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/analytics", analyticsRoutes);

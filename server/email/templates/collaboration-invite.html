@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>You're Invited to Collaborate</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Product Sans", "Google Sans", -apple-system,
+          BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        line-height: 1.6;
+        color: #1f2937;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      }
+
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        animation: pulse 4s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.3;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.6;
+          transform: scale(1.05);
+        }
+      }
+
+      .logo {
+        font-family: "Dancing Script", cursive;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        margin-bottom: 10px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .collaboration-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 8px 16px;
+        margin-bottom: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        z-index: 2;
+      }
+
+      .collaboration-icon {
+        margin-right: 8px;
+        font-size: 1.2rem;
+      }
+
+      .collaboration-text {
+        color: white;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      h1 {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 600;
+        position: relative;
+        z-index: 2;
+      }
+
+      .content {
+        padding: 40px 30px;
+      }
+
+      .greeting {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        color: #374151;
+      }
+
+      .intro-text {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #4b5563;
+        margin-bottom: 30px;
+      }
+
+      .otp-container {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 16px;
+        padding: 25px;
+        text-align: center;
+        margin: 25px 0;
+        border-left: 4px solid #667eea;
+      }
+
+      .otp-title {
+        font-family: "Dancing Script", cursive;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 15px;
+      }
+
+      .otp-code {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        letter-spacing: 8px;
+        margin: 20px 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .otp-expiry {
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+
+      .collection-details {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.05) 0%,
+          rgba(118, 75, 162, 0.05) 100%
+        );
+        border-radius: 16px;
+        padding: 25px;
+        margin: 25px 0;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .collection-title {
+        font-family: "Dancing Script", cursive;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 10px;
+      }
+
+      .collection-info {
+        display: flex;
+        align-items: center;
+        margin-top: 15px;
+      }
+
+      .collection-creator {
+        display: flex;
+        align-items: center;
+      }
+
+      .creator-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #667eea;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        margin-right: 10px;
+      }
+
+      .creator-details {
+        font-size: 0.9rem;
+      }
+
+      .creator-name {
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .creator-username {
+        color: #6b7280;
+      }
+
+      .steps-section {
+        margin: 30px 0;
+      }
+
+      .steps-title {
+        font-family: "Dancing Script", cursive;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 15px;
+      }
+
+      .steps-list {
+        list-style: none;
+        counter-reset: step-counter;
+      }
+
+      .steps-list li {
+        position: relative;
+        padding-left: 40px;
+        margin-bottom: 15px;
+        counter-increment: step-counter;
+      }
+
+      .steps-list li::before {
+        content: counter(step-counter);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .new-user-info {
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.05) 0%,
+          rgba(22, 163, 74, 0.05) 100%
+        );
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 16px;
+        padding: 25px;
+        margin: 25px 0;
+      }
+
+      .new-user-title {
+        font-family: "Dancing Script", cursive;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #16a34a;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+
+      .new-user-title::before {
+        content: "🎉";
+        margin-right: 10px;
+      }
+
+      .new-user-text {
+        color: #166534;
+        line-height: 1.6;
+      }
+
+      .cta-section {
+        text-align: center;
+        margin: 35px 0;
+      }
+
+      .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin: 0 10px 10px 0;
+      }
+
+      .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px -5px rgba(102, 126, 234, 0.5);
+      }
+
+      .cta-button.secondary {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        color: #667eea;
+        border: 2px solid #667eea;
+      }
+
+      .signature {
+        margin-top: 30px;
+        text-align: center;
+      }
+
+      .signature-text {
+        font-family: "Dancing Script", cursive;
+        font-size: 1.1rem;
+        color: #667eea;
+        margin-bottom: 5px;
+      }
+
+      .team-name {
+        color: #6b7280;
+        font-weight: 500;
+      }
+
+      .footer {
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        padding: 30px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .footer-text {
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      .footer-small {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 15px;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 10px;
+        }
+
+        .content {
+          padding: 30px 20px;
+        }
+
+        .header {
+          padding: 30px 20px;
+        }
+
+        .logo {
+          font-size: 1.8rem;
+        }
+
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .otp-code {
+          font-size: 2rem;
+          letter-spacing: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <div class="logo">Pixinity</div>
+        <div class="collaboration-badge">
+          <span class="collaboration-icon">👥</span>
+          <span class="collaboration-text">Collaboration Invite</span>
+        </div>
+        <h1>You're Invited to Collaborate!</h1>
+      </div>
+
+      <div class="content">
+        <div class="greeting">Hello,</div>
+
+        <div class="intro-text">
+          <strong>{{inviterName}}</strong> (@{{inviterUsername}}) has invited
+          you to collaborate on a photo collection on <strong>Pixinity</strong>.
+          As a collaborator, you'll be able to add your own photos and help
+          curate this collection.
+        </div>
+
+        <div class="collection-details">
+          <div class="collection-title">Collection Details</div>
+          <div class="collection-description">
+            <strong>"{{collectionTitle}}"</strong>
+          </div>
+          <div class="collection-info">
+            <div class="collection-creator">
+              <div class="creator-avatar">{{inviterName.[0]}}</div>
+              <div class="creator-details">
+                <div class="creator-name">{{inviterName}}</div>
+                <div class="creator-username">@{{inviterUsername}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="otp-container">
+          <div class="otp-title">Your Access Code</div>
+          <div class="otp-text">
+            Use this 6-digit code to join the collection as a collaborator:
+          </div>
+          <div class="otp-code">{{otpCode}}</div>
+          <div class="otp-expiry">This code expires on {{expiresAt}}</div>
+        </div>
+
+        <div class="steps-section">
+          <div class="steps-title">How to Join</div>
+          <ol class="steps-list">
+            <li>
+              Log in to your Pixinity account (or create one if you don't have
+              one yet)
+            </li>
+            <li>
+              Go to the Collections page and find "{{collectionTitle}}" or use
+              the button below
+            </li>
+            <li>
+              Click on "Join as Collaborator" and enter the 6-digit code above
+            </li>
+            <li>
+              Once joined, you can add your photos to the collection and help
+              curate it
+            </li>
+          </ol>
+        </div>
+
+        {{#if isNewUser}}
+        <div class="new-user-info">
+          <div class="new-user-title">New to Pixinity?</div>
+          <div class="new-user-text">
+            <p>
+              It looks like you don't have a Pixinity account yet. No worries!
+              You can create one for free in just a few steps:
+            </p>
+            <ol style="margin-top: 10px; margin-left: 20px">
+              <li>Click the "Join Pixinity" button below</li>
+              <li>Create your account with this email address</li>
+              <li>
+                After signing up, go to Collections and enter your access code
+              </li>
+            </ol>
+          </div>
+        </div>
+        {{/if}}
+
+        <div class="cta-section">
+          <a
+            href="http://localhost:5173/collections/{{collectionId}}"
+            class="cta-button"
+          >
+            View Collection
+          </a>
+          {{#if isNewUser}}
+          <a href="http://localhost:5173/signup" class="cta-button secondary">
+            Join Pixinity
+          </a>
+          {{/if}}
+        </div>
+
+        <div class="signature">
+          <div class="signature-text">Happy collaborating!</div>
+          <div class="team-name">The Pixinity Team</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-text">
+          &copy; {{currentYear}} Pixinity. All rights reserved.
+        </div>
+        <div class="footer-small">
+          You're receiving this email because someone invited you to collaborate
+          on a Pixinity collection. If you believe this was sent in error,
+          please ignore this email.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -14,6 +14,8 @@ export interface CreateCollectionData {
   description?: string;
   isPrivate?: boolean;
   photoIds?: string[];
+  isCollaborative?: boolean;
+  collaboratorEmails?: string[];
 }
 
 export interface UpdateCollectionData {
@@ -21,6 +23,8 @@ export interface UpdateCollectionData {
   description?: string;
   isPrivate?: boolean;
   photoIds?: string[];
+  isCollaborative?: boolean;
+  collaboratorEmails?: string[];
 }
 
 class CollectionsService {

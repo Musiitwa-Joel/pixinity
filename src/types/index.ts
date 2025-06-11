@@ -61,10 +61,12 @@ export interface Photo {
 
 export interface Collaborator {
   id: string;
-  username: string;
-  firstName: string;
-  lastName: string;
+  userId?: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
   avatar?: string;
+  email?: string;
   verified: boolean;
   role: string;
   collaboratorRole: "editor" | "viewer";
@@ -87,6 +89,9 @@ export interface Collection {
   description?: string;
   coverPhoto?: Photo;
   photosCount: number;
+  viewsCount?: number;
+  likesCount?: number;
+  commentsCount?: number;
   isPrivate: boolean;
   isCollaborative: boolean;
   creator: User;
@@ -114,7 +119,10 @@ export interface Notification {
     | "feature"
     | "collection_add"
     | "collaboration_invite"
-    | "access_request";
+    | "access_request"
+    | "collection_like"
+    | "collection_comment"
+    | "collection_upload";
   message: string;
   read: boolean;
   actionUrl?: string;
