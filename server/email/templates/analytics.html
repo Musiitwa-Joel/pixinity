@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Pixinity Analytics Report</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Product Sans", "Google Sans", -apple-system,
+          BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        line-height: 1.6;
+        color: #1f2937;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      }
+
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          transparent 70%
+        );
+        animation: pulse 4s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.3;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.6;
+          transform: scale(1.05);
+        }
+      }
+
+      .logo {
+        font-family: "Dancing Script", cursive;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        margin-bottom: 10px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .analytics-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 8px 16px;
+        margin-bottom: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        z-index: 2;
+      }
+
+      .analytics-icon {
+        margin-right: 8px;
+        font-size: 1.2rem;
+      }
+
+      .analytics-text {
+        color: white;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      h1 {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 600;
+        position: relative;
+        z-index: 2;
+      }
+
+      .content {
+        padding: 40px 30px;
+      }
+
+      .greeting {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        color: #374151;
+      }
+
+      .intro-text {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #4b5563;
+        margin-bottom: 30px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin: 30px 0;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 16px;
+        padding: 25px;
+        text-align: center;
+        border-left: 4px solid #667eea;
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+      }
+
+      .section-title {
+        font-family: "Dancing Script", cursive;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title::before {
+        content: "📊";
+        margin-right: 10px;
+      }
+
+      .top-photos {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.05) 0%,
+          rgba(118, 75, 162, 0.05) 100%
+        );
+        border-radius: 16px;
+        padding: 25px;
+        margin: 25px 0;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .photo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .photo-item:last-child {
+        border-bottom: none;
+      }
+
+      .photo-title {
+        font-weight: 600;
+        color: #374151;
+        flex: 1;
+        margin-right: 15px;
+      }
+
+      .photo-stats {
+        display: flex;
+        gap: 15px;
+        font-size: 0.8rem;
+        color: #6b7280;
+      }
+
+      .photo-stat {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .insights-section {
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.05) 0%,
+          rgba(22, 163, 74, 0.05) 100%
+        );
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 16px;
+        padding: 25px;
+        margin: 25px 0;
+      }
+
+      .insights-title {
+        font-family: "Dancing Script", cursive;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #16a34a;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+
+      .insights-title::before {
+        content: "💡";
+        margin-right: 10px;
+      }
+
+      .insights-list {
+        list-style: none;
+        margin-top: 15px;
+      }
+
+      .insights-list li {
+        position: relative;
+        padding-left: 25px;
+        margin-bottom: 12px;
+        color: #166534;
+        line-height: 1.6;
+      }
+
+      .insights-list li::before {
+        content: "✨";
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+
+      .cta-section {
+        text-align: center;
+        margin: 35px 0;
+      }
+
+      .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        padding: 16px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin: 0 10px 10px 0;
+      }
+
+      .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px -5px rgba(102, 126, 234, 0.5);
+      }
+
+      .cta-button.secondary {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        color: #667eea;
+        border: 2px solid #667eea;
+      }
+
+      .signature {
+        margin-top: 30px;
+        text-align: center;
+      }
+
+      .signature-text {
+        font-family: "Dancing Script", cursive;
+        font-size: 1.1rem;
+        color: #667eea;
+        margin-bottom: 5px;
+      }
+
+      .team-name {
+        color: #6b7280;
+        font-weight: 500;
+      }
+
+      .footer {
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        padding: 30px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .footer-text {
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      .footer-small {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 15px;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 10px;
+        }
+
+        .content {
+          padding: 30px 20px;
+        }
+
+        .header {
+          padding: 30px 20px;
+        }
+
+        .logo {
+          font-size: 1.8rem;
+        }
+
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .stat-value {
+          font-size: 2rem;
+        }
+
+        .photo-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .photo-stats {
+          align-self: stretch;
+          justify-content: space-between;
+        }
+
+        .cta-button {
+          display: block;
+          margin: 10px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <div class="logo">Pixinity</div>
+        <div class="analytics-badge">
+          <span class="analytics-icon">📈</span>
+          <span class="analytics-text">Analytics Report</span>
+        </div>
+        <h1>Your {{period}} Performance</h1>
+      </div>
+
+      <div class="content">
+        <div class="greeting">Hello {{firstName}},</div>
+
+        <div class="intro-text">
+          Here's your latest analytics report showing how your photography is
+          performing on <strong>Pixinity</strong>. Your creative work continues
+          to inspire and engage our community!
+        </div>
+
+        <div class="section-title">Performance Overview</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value">{{totalPhotos}}</div>
+            <div class="stat-label">Total Photos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{totalViews}}</div>
+            <div class="stat-label">Total Views</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{totalLikes}}</div>
+            <div class="stat-label">Total Likes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{totalDownloads}}</div>
+            <div class="stat-label">Downloads</div>
+          </div>
+        </div>
+
+        <div class="top-photos">
+          <div class="section-title">Top Performing Photos</div>
+          {{#each topPhotos}}
+          <div class="photo-item">
+            <div class="photo-title">{{this.title}}</div>
+            <div class="photo-stats">
+              <div class="photo-stat">
+                <span>👁️</span>
+                <span>{{this.views}}</span>
+              </div>
+              <div class="photo-stat">
+                <span>❤️</span>
+                <span>{{this.likes}}</span>
+              </div>
+              <div class="photo-stat">
+                <span>⬇️</span>
+                <span>{{this.downloads}}</span>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+
+        <div class="insights-section">
+          <div class="insights-title">Growth Insights</div>
+          <div class="insights-text">
+            Based on your performance data, here are some insights to help you
+            grow:
+          </div>
+          <ul class="insights-list">
+            <li>
+              Your photos are getting great engagement! Keep uploading
+              consistently
+            </li>
+            <li>Photos with detailed descriptions tend to perform better</li>
+            <li>
+              Engaging with other photographers' work increases your visibility
+            </li>
+            <li>Using relevant tags helps people discover your content</li>
+            <li>
+              Posting during peak hours (6-9 PM) can boost initial engagement
+            </li>
+          </ul>
+        </div>
+
+        <div class="cta-section">
+          <a href="http://localhost:5173/@{{username}}" class="cta-button">
+            View Your Profile
+          </a>
+          <a
+            href="http://localhost:5173/analytics"
+            class="cta-button secondary"
+          >
+            Full Analytics
+          </a>
+        </div>
+
+        <div class="signature">
+          <div class="signature-text">Keep creating amazing content!</div>
+          <div class="team-name">The Pixinity Analytics Team</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-text">
+          &copy; {{currentYear}} Pixinity. All rights reserved.
+        </div>
+        <div class="footer-small">
+          You're receiving this analytics report because you're an active
+          photographer on Pixinity. You can manage your email preferences in
+          your account settings.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

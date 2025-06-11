@@ -55,7 +55,7 @@ let transporter: nodemailer.Transporter | null = null;
 const getTransporter = async (): Promise<nodemailer.Transporter> => {
   if (!transporter) {
     const config = await getEmailConfig();
-    transporter = nodemailer.createTransport(config);
+    transporter = nodemailer.createTransporter(config);
 
     // Log configuration (without password)
     const logConfig = {
@@ -114,6 +114,41 @@ const getFallbackTemplate = (templateName: string): string => {
         </body>
       </html>
     `;
+  } else if (templateName === "photo-published") {
+    return `
+      <html>
+        <body>
+          <h1>Your Photos Are Now Live on Pixinity!</h1>
+          <p>Hello {{firstName}},</p>
+          <p>Great news! Your {{photoCount}} photo(s) have been successfully published and are now live on Pixinity:</p>
+          <ul>
+            {{photoTitles}}
+          </ul>
+          <p>Your photos are now visible to the Pixinity community and can be discovered in the explore section.</p>
+          <p><a href="http://localhost:5173/@{{username}}">View your profile</a> | <a href="http://localhost:5173/explore">Explore photos</a></p>
+          <p>Keep creating amazing content!</p>
+          <p>Best regards,<br>The Pixinity Team</p>
+        </body>
+      </html>
+    `;
+  } else if (templateName === "analytics") {
+    return `
+      <html>
+        <body>
+          <h1>Your Pixinity Analytics Report</h1>
+          <p>Hello {{firstName}},</p>
+          <p>Here's your latest analytics report for {{period}}:</p>
+          <ul>
+            <li>Total Photos: {{totalPhotos}}</li>
+            <li>Total Views: {{totalViews}}</li>
+            <li>Total Likes: {{totalLikes}}</li>
+            <li>Total Downloads: {{totalDownloads}}</li>
+          </ul>
+          <p>Keep up the great work!</p>
+          <p>Best regards,<br>The Pixinity Analytics Team</p>
+        </body>
+      </html>
+    `;
   } else {
     return `
       <html>
@@ -129,11 +164,42 @@ const getFallbackTemplate = (templateName: string): string => {
 // Replace placeholders in template
 const replacePlaceholders = (
   template: string,
-  data: Record<string, string>
+  data: Record<string, any>
 ): string => {
   let result = template;
   for (const [key, value] of Object.entries(data)) {
-    result = result.replace(new RegExp(`{{${key}}}`, "g"), value);
+    if (key === "photoTitles" && Array.isArray(value)) {
+      // Handle array of photo titles
+      const listItems = value.map((title) => `<li>${title}</li>`).join("");
+      result = result.replace(/{{photoTitles}}/g, listItems);
+    } else if (key === "topPhotos" && Array.isArray(value)) {
+      // Handle top photos array for analytics
+      let photosHtml = "";
+      value.forEach((photo) => {
+        photosHtml += `
+          <div class="photo-item">
+            <div class="photo-title">${photo.title}</div>
+            <div class="photo-stats">
+              <div class="photo-stat">
+                <span>👁️</span>
+                <span>${photo.views}</span>
+              </div>
+              <div class="photo-stat">
+                <span>❤️</span>
+                <span>${photo.likes}</span>
+              </div>
+              <div class="photo-stat">
+                <span>⬇️</span>
+                <span>${photo.downloads}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      result = result.replace(/{{#each topPhotos}}.*?{{\/each}}/gs, photosHtml);
+    } else {
+      result = result.replace(new RegExp(`{{${key}}}`, "g"), value);
+    }
   }
   return result;
 };
@@ -236,6 +302,121 @@ export const sendLoginNotificationEmail = async (
   }
 };
 
+// Send photo published notification
+export const sendPhotoPublishedEmail = async (
+  to: string,
+  data: {
+    firstName: string;
+    photoCount: number;
+    photoTitles: string[];
+    username: string;
+  }
+): Promise<boolean> => {
+  try {
+    console.log(`Preparing photo published notification to ${to}...`);
+
+    // Load and prepare template
+    let template = loadTemplate("photo-published");
+
+    // Replace placeholders
+    template = replacePlaceholders(template, {
+      firstName: data.firstName,
+      photoCount: data.photoCount.toString(),
+      photoTitles: data.photoTitles,
+      username: data.username,
+      currentYear: new Date().getFullYear().toString(),
+    });
+
+    // Get transporter
+    const transport = await getTransporter();
+
+    // Send email
+    const info = await transport.sendMail({
+      from: `"Pixinity Team" <${transport.options.auth?.user}>`,
+      to,
+      subject: `Your ${data.photoCount} Photo${
+        data.photoCount > 1 ? "s Are" : " Is"
+      } Now Live on Pixinity!`,
+      html: template,
+    });
+
+    console.log(`Photo published email sent: ${info.messageId}`);
+
+    // If using Ethereal, provide preview URL
+    if (transport.options.host === "smtp.ethereal.email") {
+      console.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error sending photo published email:", error);
+    return false;
+  }
+};
+
+// Send analytics email
+export const sendAnalyticsEmail = async (
+  to: string,
+  data: {
+    firstName: string;
+    username: string;
+    totalPhotos: number;
+    totalViews: number;
+    totalLikes: number;
+    totalDownloads: number;
+    topPhotos: Array<{
+      title: string;
+      views: number;
+      likes: number;
+      downloads: number;
+    }>;
+    period: string;
+  }
+): Promise<boolean> => {
+  try {
+    console.log(`Preparing analytics email to ${to}...`);
+
+    // Load and prepare template
+    let template = loadTemplate("analytics");
+
+    // Replace placeholders
+    template = replacePlaceholders(template, {
+      firstName: data.firstName,
+      username: data.username,
+      totalPhotos: data.totalPhotos.toString(),
+      totalViews: data.totalViews.toLocaleString(),
+      totalLikes: data.totalLikes.toLocaleString(),
+      totalDownloads: data.totalDownloads.toLocaleString(),
+      topPhotos: data.topPhotos,
+      period: data.period,
+      currentYear: new Date().getFullYear().toString(),
+    });
+
+    // Get transporter
+    const transport = await getTransporter();
+
+    // Send email
+    const info = await transport.sendMail({
+      from: `"Pixinity Analytics" <${transport.options.auth?.user}>`,
+      to,
+      subject: `Your Pixinity Analytics Report - ${data.period}`,
+      html: template,
+    });
+
+    console.log(`Analytics email sent: ${info.messageId}`);
+
+    // If using Ethereal, provide preview URL
+    if (transport.options.host === "smtp.ethereal.email") {
+      console.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error sending analytics email:", error);
+    return false;
+  }
+};
+
 // Verify email setup
 export const verifyEmailSetup = async (): Promise<boolean> => {
   try {
@@ -252,5 +433,7 @@ export const verifyEmailSetup = async (): Promise<boolean> => {
 export default {
   sendWelcomeEmail,
   sendLoginNotificationEmail,
+  sendPhotoPublishedEmail,
+  sendAnalyticsEmail,
   verifyEmailSetup,
 };

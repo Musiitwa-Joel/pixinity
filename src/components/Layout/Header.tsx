@@ -1,7 +1,5 @@
-"use client";
-
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Camera,
@@ -18,21 +16,33 @@ import {
   Grid3X3,
   Globe,
   ChevronDown,
+  Image,
+  Check,
+  Heart,
+  MessageCircle,
+  Download,
+  Clock,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "../../contexts/LanguageContext";
+import toast from "react-hot-toast";
 
 const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
-  const { openUploadModal, notifications } = useApp();
+  const { openUploadModal } = useApp();
   const navigate = useNavigate();
   const { language: selectedLanguage, setLanguage } = useLanguage();
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
 
   const languages = [
     { code: "en", name: "English", flag: "🇺🇸" },
@@ -43,12 +53,120 @@ const Header: React.FC = () => {
     { code: "ar", name: "العربية", flag: "🇸🇦" },
   ];
 
+  // Fetch notifications when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+    }
+  }, [isAuthenticated]);
+
+  // Fetch notifications when notification panel is opened
+  useEffect(() => {
+    if (isNotificationsOpen && isAuthenticated) {
+      fetchNotifications();
+    }
+  }, [isNotificationsOpen]);
+
+  const fetchNotifications = async () => {
+    if (!isAuthenticated) return;
+
+    setIsLoadingNotifications(true);
+    try {
+      const response = await fetch("http://localhost:5000/api/notifications", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.notifications);
+        setUnreadCount(data.unreadCount);
+      }
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    } finally {
+      setIsLoadingNotifications(false);
+    }
+  };
+
+  const handleMarkAsRead = async (notificationId: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/notifications/${notificationId}/read`,
+        {
+          method: "PATCH",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        // Update local state
+        setNotifications((prev) =>
+          prev.map((notification) =>
+            notification.id === notificationId
+              ? { ...notification, read: true }
+              : notification
+          )
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/notifications/mark-all-read",
+        {
+          method: "PATCH",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        // Update local state
+        setNotifications((prev) =>
+          prev.map((notification) => ({ ...notification, read: true }))
+        );
+        setUnreadCount(0);
+        toast.success("All notifications marked as read");
+      }
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
+    }
+  };
+
+  const handleDeleteNotification = async (notificationId: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/notifications/${notificationId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        // Update local state
+        const deletedNotification = notifications.find(
+          (n) => n.id === notificationId
+        );
+        setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+
+        if (deletedNotification && !deletedNotification.read) {
+          setUnreadCount((prev) => Math.max(0, prev - 1));
+        }
+      }
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+    }
+  };
+
   const handleLanguageChange = (langCode: string) => {
     setLanguage(langCode as any);
     setIsLanguageMenuOpen(false);
   };
-
-  const unreadNotifications = notifications.filter((n) => !n.read).length;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +179,54 @@ const Header: React.FC = () => {
     logout();
     setIsProfileMenuOpen(false);
     navigate("/");
+  };
+
+  const handleNotificationClick = (notification: any) => {
+    // Mark as read
+    if (!notification.read) {
+      handleMarkAsRead(notification.id);
+    }
+
+    // Navigate to the action URL if provided
+    if (notification.actionUrl) {
+      navigate(notification.actionUrl);
+      setIsNotificationsOpen(false);
+    }
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "like":
+        return <Heart className="h-5 w-5 text-error-500" />;
+      case "comment":
+      case "comment_like":
+        return <MessageCircle className="h-5 w-5 text-primary-500" />;
+      case "follow":
+        return <User className="h-5 w-5 text-green-500" />;
+      case "download":
+        return <Download className="h-5 w-5 text-blue-500" />;
+      default:
+        return <Bell className="h-5 w-5 text-neutral-500" />;
+    }
+  };
+
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return "just now";
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+
+    return date.toLocaleDateString();
   };
 
   return (
@@ -172,17 +338,108 @@ const Header: React.FC = () => {
                 </button>
 
                 {/* Notifications */}
-                <Link
-                  to="/notifications"
-                  className="relative p-2 text-neutral-600 hover:text-primary-600 transition-colors"
-                >
-                  <Bell className="h-5 w-5" />
-                  {unreadNotifications > 0 && (
-                    <span className="absolute -top-1 -right-1 h-4 w-4 bg-error-500 text-white text-xs rounded-full flex items-center justify-center">
-                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
-                    </span>
-                  )}
-                </Link>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                    className="relative p-2 text-neutral-600 hover:text-primary-600 transition-colors"
+                  >
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 h-4 w-4 bg-error-500 text-white text-xs rounded-full flex items-center justify-center">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Notifications Panel */}
+                  <AnimatePresence>
+                    {isNotificationsOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                        className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-neutral-200 overflow-hidden z-50"
+                      >
+                        <div className="flex items-center justify-between p-4 border-b border-neutral-100">
+                          <h3 className="font-semibold text-neutral-900">
+                            Notifications
+                          </h3>
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={handleMarkAllAsRead}
+                              className="text-xs text-primary-600 hover:text-primary-700 transition-colors"
+                            >
+                              Mark all as read
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="max-h-96 overflow-y-auto">
+                          {isLoadingNotifications ? (
+                            <div className="flex justify-center items-center py-8">
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
+                            </div>
+                          ) : notifications.length > 0 ? (
+                            <div>
+                              {notifications.map((notification) => (
+                                <div
+                                  key={notification.id}
+                                  className={`p-4 border-b border-neutral-100 hover:bg-neutral-50 transition-colors cursor-pointer ${
+                                    !notification.read ? "bg-primary-50" : ""
+                                  }`}
+                                  onClick={() =>
+                                    handleNotificationClick(notification)
+                                  }
+                                >
+                                  <div className="flex items-start space-x-3">
+                                    <div className="flex-shrink-0 mt-1">
+                                      {getNotificationIcon(notification.type)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p
+                                        className={`text-sm ${
+                                          !notification.read
+                                            ? "font-medium text-neutral-900"
+                                            : "text-neutral-700"
+                                        }`}
+                                      >
+                                        {notification.message}
+                                      </p>
+                                      <p className="text-xs text-neutral-500 mt-1">
+                                        {getTimeAgo(notification.createdAt)}
+                                      </p>
+                                    </div>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteNotification(
+                                          notification.id
+                                        );
+                                      }}
+                                      className="text-neutral-400 hover:text-neutral-600 transition-colors"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="py-12 text-center">
+                              <Bell className="h-12 w-12 text-neutral-300 mx-auto mb-3" />
+                              <p className="text-neutral-500">
+                                No notifications yet
+                              </p>
+                              <p className="text-sm text-neutral-400">
+                                We'll notify you when something happens
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* Profile Menu */}
                 <div className="relative">
@@ -243,6 +500,14 @@ const Header: React.FC = () => {
                           >
                             <Grid3X3 className="h-4 w-4" />
                             <span>Collections</span>
+                          </Link>
+                          <Link
+                            to="/my-uploads"
+                            className="flex items-center space-x-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                          >
+                            <Image className="h-4 w-4" />
+                            <span>My Uploads</span>
                           </Link>
                           <Link
                             to="/saved"
@@ -411,6 +676,13 @@ const Header: React.FC = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Analytics
+                  </Link>
+                  <Link
+                    to="/my-uploads"
+                    className="block py-2 text-sm font-medium text-neutral-700"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Uploads
                   </Link>
                   <button
                     onClick={handleLogout}

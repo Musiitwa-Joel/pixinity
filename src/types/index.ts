@@ -14,7 +14,7 @@ export interface User {
     behance?: string;
     dribbble?: string;
   };
-  role: 'guest' | 'photographer' | 'company' | 'admin';
+  role: "guest" | "photographer" | "company" | "admin";
   verified: boolean;
   followersCount: number;
   followingCount: number;
@@ -26,14 +26,15 @@ export interface User {
 }
 
 export interface Photo {
-  id: string;
+  id: string; // This will be the UUID
+  uuid: string; // Explicit UUID field
   title: string;
   description?: string;
   url: string;
   thumbnailUrl: string;
   width: number;
   height: number;
-  orientation: 'portrait' | 'landscape' | 'square';
+  orientation: "portrait" | "landscape" | "square";
   category: string;
   tags: string[];
   color: string;
@@ -46,7 +47,8 @@ export interface Photo {
     iso?: string;
     location?: string;
   };
-  license: 'free' | 'cc0' | 'attribution';
+  license: "free" | "cc0" | "attribution";
+  status?: "draft" | "live";
   photographer: User;
   likesCount: number;
   downloadsCount: number;
@@ -55,6 +57,28 @@ export interface Photo {
   approved: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Collaborator {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  avatar?: string;
+  verified: boolean;
+  role: string;
+  collaboratorRole: "editor" | "viewer";
+  status: "pending" | "accepted" | "declined";
+  invitedAt: Date;
+  respondedAt?: Date;
+}
+
+export interface AccessRequest {
+  id: string;
+  message?: string;
+  requestedAt: Date;
+  status: "pending" | "approved" | "denied";
+  user: User;
 }
 
 export interface Collection {
@@ -66,8 +90,9 @@ export interface Collection {
   isPrivate: boolean;
   isCollaborative: boolean;
   creator: User;
-  collaborators?: User[];
+  collaborators?: Collaborator[];
   photos: Photo[];
+  accessRequests?: AccessRequest[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -75,17 +100,25 @@ export interface Collection {
 export interface SearchFilters {
   query?: string;
   category?: string;
-  orientation?: 'portrait' | 'landscape' | 'square';
+  orientation?: "portrait" | "landscape" | "square";
   color?: string;
-  sortBy?: 'trending' | 'newest' | 'popular' | 'downloads';
+  sortBy?: "trending" | "newest" | "popular" | "downloads";
 }
 
 export interface Notification {
   id: string;
-  type: 'like' | 'follow' | 'download' | 'feature' | 'collection_add';
+  type:
+    | "like"
+    | "follow"
+    | "download"
+    | "feature"
+    | "collection_add"
+    | "collaboration_invite"
+    | "access_request";
   message: string;
   read: boolean;
   actionUrl?: string;
+  actor?: User;
   createdAt: Date;
 }
 

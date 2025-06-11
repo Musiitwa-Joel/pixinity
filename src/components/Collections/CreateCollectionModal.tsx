@@ -12,6 +12,12 @@ import {
   Camera,
   Search,
   Check,
+  Mail,
+  UserPlus,
+  Trash2,
+  Send,
+  Shield,
+  Globe,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../../contexts/AuthContext";
@@ -57,6 +63,8 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
   const [isCreating, setIsCreating] = useState(false);
   const [userPhotos, setUserPhotos] = useState<UserPhoto[]>([]);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
+  const [collaboratorEmails, setCollaboratorEmails] = useState<string[]>([]);
+  const [newCollaboratorEmail, setNewCollaboratorEmail] = useState("");
 
   const {
     register,
@@ -72,6 +80,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
   });
 
   const isPrivate = watch("isPrivate");
+  const isCollaborative = watch("isCollaborative");
 
   // Load user's photos when modal opens
   useEffect(() => {
@@ -127,6 +136,38 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
     });
   };
 
+  const handleAddCollaborator = () => {
+    if (!newCollaboratorEmail.trim()) return;
+
+    const email = newCollaboratorEmail.trim().toLowerCase();
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    // Check if email is already added
+    if (collaboratorEmails.includes(email)) {
+      toast.error("This email is already added");
+      return;
+    }
+
+    // Check if it's the user's own email
+    if (email === user?.email?.toLowerCase()) {
+      toast.error("You cannot add yourself as a collaborator");
+      return;
+    }
+
+    setCollaboratorEmails((prev) => [...prev, email]);
+    setNewCollaboratorEmail("");
+  };
+
+  const handleRemoveCollaborator = (email: string) => {
+    setCollaboratorEmails((prev) => prev.filter((e) => e !== email));
+  };
+
   const handleCreateCollection = async (data: CreateCollectionForm) => {
     // Validate photos are selected
     if (selectedPhotos.size === 0) {
@@ -142,7 +183,9 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
         title: data.title,
         description: data.description,
         isPrivate: data.isPrivate,
+        isCollaborative: data.isCollaborative,
         photoIds: Array.from(selectedPhotos),
+        collaboratorEmails: data.isCollaborative ? collaboratorEmails : [],
       };
 
       const newCollection = await collectionsService.createCollection(
@@ -150,7 +193,17 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
       );
 
       onCollectionCreated(newCollection);
-      toast.success("Collection created successfully!");
+
+      if (data.isCollaborative && collaboratorEmails.length > 0) {
+        toast.success(
+          `Collection created! Invitations sent to ${
+            collaboratorEmails.length
+          } collaborator${collaboratorEmails.length > 1 ? "s" : ""}.`
+        );
+      } else {
+        toast.success("Collection created successfully!");
+      }
+
       handleClose();
     } catch (error: any) {
       console.error("Create collection error:", error);
@@ -165,6 +218,8 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
     setSelectedPhotos(new Set());
     setSearchQuery("");
     setUserPhotos([]);
+    setCollaboratorEmails([]);
+    setNewCollaboratorEmail("");
     reset();
     onClose();
   };
@@ -372,7 +427,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
 
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-neutral-900">
-                        Privacy Settings
+                        Collection Settings
                       </h3>
 
                       <div className="space-y-3">
@@ -382,7 +437,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                             type="checkbox"
                             className="mt-1 text-primary-600 focus:ring-primary-500 rounded"
                           />
-                          <div>
+                          <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
                               <Lock className="h-4 w-4 text-neutral-500" />
                               <span className="font-medium text-neutral-900">
@@ -390,7 +445,8 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                               </span>
                             </div>
                             <p className="text-sm text-neutral-600">
-                              Only you can see this collection
+                              Only you and invited collaborators can see this
+                              collection
                             </p>
                           </div>
                         </label>
@@ -402,7 +458,7 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                             className="mt-1 text-primary-600 focus:ring-primary-500 rounded"
                             disabled={isPrivate}
                           />
-                          <div>
+                          <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
                               <Users className="h-4 w-4 text-neutral-500" />
                               <span
@@ -422,10 +478,48 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                                   : "text-neutral-600"
                               }`}
                             >
-                              Allow others to contribute photos (Coming soon)
+                              Allow others to contribute photos to this
+                              collection
                             </p>
                           </div>
                         </label>
+                      </div>
+
+                      {/* Privacy Info */}
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-start space-x-3">
+                          <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-blue-800 mb-1">
+                              Privacy & Collaboration
+                            </h4>
+                            <div className="text-sm text-blue-700 space-y-1">
+                              {isPrivate ? (
+                                <p>
+                                  • Private collections are only visible to you
+                                  and invited collaborators
+                                </p>
+                              ) : (
+                                <p>
+                                  • Public collections can be discovered by
+                                  anyone on Pixinity
+                                </p>
+                              )}
+                              {isCollaborative && !isPrivate && (
+                                <p>
+                                  • Users can request access to collaborate on
+                                  public collaborative collections
+                                </p>
+                              )}
+                              {isCollaborative && (
+                                <p>
+                                  • Collaborators can add their own photos to
+                                  the collection
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -549,19 +643,150 @@ const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                   >
                     <div className="mb-6">
                       <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-                        Collaborators
+                        Invite Collaborators
                       </h3>
                       <p className="text-neutral-600">
-                        Collaborative collections are coming soon! For now, you
-                        can create the collection and we'll add collaboration
-                        features later.
+                        {isCollaborative
+                          ? "Invite people to collaborate on this collection by email. They'll receive an OTP code to join."
+                          : "Enable collaborative collection in the previous step to invite collaborators."}
                       </p>
                     </div>
 
-                    <div className="text-center py-12 text-neutral-500">
-                      <Users className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
-                      <p>Collaboration features coming soon</p>
-                    </div>
+                    {isCollaborative ? (
+                      <div className="space-y-6">
+                        {/* Add Collaborator */}
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-700 mb-2">
+                            Invite by Email
+                          </label>
+                          <div className="flex space-x-3">
+                            <div className="flex-1 relative">
+                              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                              <input
+                                type="email"
+                                value={newCollaboratorEmail}
+                                onChange={(e) =>
+                                  setNewCollaboratorEmail(e.target.value)
+                                }
+                                onKeyPress={(e) =>
+                                  e.key === "Enter" &&
+                                  (e.preventDefault(), handleAddCollaborator())
+                                }
+                                placeholder="Enter email address"
+                                className="w-full pl-10 pr-4 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleAddCollaborator}
+                              className="btn-primary px-4 py-2"
+                            >
+                              <UserPlus className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Collaborators List */}
+                        {collaboratorEmails.length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium text-neutral-700 mb-3">
+                              Invited Collaborators ({collaboratorEmails.length}
+                              )
+                            </h4>
+                            <div className="space-y-2">
+                              {collaboratorEmails.map((email, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
+                                >
+                                  <div className="flex items-center space-x-3">
+                                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                                      <Mail className="h-4 w-4 text-primary-600" />
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-neutral-900">
+                                        {email}
+                                      </p>
+                                      <p className="text-xs text-neutral-500">
+                                        Will receive invitation email
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleRemoveCollaborator(email)
+                                    }
+                                    className="p-1 text-neutral-400 hover:text-red-500 transition-colors"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Collaboration Info */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div className="flex items-start space-x-3">
+                            <Send className="h-5 w-5 text-blue-600 mt-0.5" />
+                            <div>
+                              <h4 className="font-medium text-blue-800 mb-1">
+                                How Collaboration Works
+                              </h4>
+                              <div className="text-sm text-blue-700 space-y-1">
+                                <p>
+                                  • Invited users receive an email with a
+                                  6-digit OTP code
+                                </p>
+                                <p>
+                                  • They can use the OTP to join as collection
+                                  editors
+                                </p>
+                                <p>
+                                  • Editors can add their own photos to the
+                                  collection
+                                </p>
+                                <p>
+                                  • You can manage collaborators anytime from
+                                  the collection page
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {!isPrivate && (
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div className="flex items-start space-x-3">
+                              <Globe className="h-5 w-5 text-green-600 mt-0.5" />
+                              <div>
+                                <h4 className="font-medium text-green-800 mb-1">
+                                  Public Collaboration
+                                </h4>
+                                <p className="text-sm text-green-700">
+                                  Since this is a public collaborative
+                                  collection, other users can also request
+                                  access to collaborate. You'll receive
+                                  notifications for access requests and can
+                                  approve or deny them.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 text-neutral-500">
+                        <Users className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
+                        <p className="mb-2">Collaboration is disabled</p>
+                        <p className="text-sm">
+                          Go back to the details step and enable "Collaborative
+                          Collection" to invite collaborators.
+                        </p>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </div>

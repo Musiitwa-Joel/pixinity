@@ -19,6 +19,11 @@ interface AuthContextType {
   register: (userData: Partial<User>, password: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (userData: Partial<User>) => Promise<void>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<string>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -186,10 +191,91 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const updateProfile = async (userData: Partial<User>) => {
     if (!user) return;
 
-    // For now, just update locally - you can implement API endpoint later
-    const updatedUser = { ...user, ...userData, updatedAt: new Date() };
-    setUser(updatedUser);
-    toast.success("Profile updated successfully");
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update profile");
+      }
+
+      // Update local user state
+      const updatedUser = { ...user, ...userData, updatedAt: new Date() };
+      setUser(updatedUser);
+      toast.success("Profile updated successfully");
+    } catch (error: any) {
+      console.error("Update profile error:", error);
+      toast.error(error.message || "Failed to update profile");
+      throw error;
+    }
+  };
+
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to change password");
+      }
+
+      toast.success("Password updated successfully");
+    } catch (error: any) {
+      console.error("Change password error:", error);
+      toast.error(error.message || "Failed to change password");
+      throw error;
+    }
+  };
+
+  const uploadAvatar = async (file: File): Promise<string> => {
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const response = await fetch(`${API_BASE_URL}/users/${user.id}/avatar`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to upload avatar");
+      }
+
+      // Update user avatar in local state
+      setUser((prev) => (prev ? { ...prev, avatar: data.avatarUrl } : null));
+
+      toast.success("Avatar updated successfully");
+      return data.avatarUrl;
+    } catch (error: any) {
+      console.error("Avatar upload error:", error);
+      toast.error(error.message || "Failed to upload avatar");
+      throw error;
+    }
   };
 
   const value = {
@@ -200,6 +286,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     updateProfile,
+    changePassword,
+    uploadAvatar,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
-import { Heart, Download, Bookmark, Share2, User, Eye } from 'lucide-react';
-import { Photo } from '../../types';
-import { useAuth } from '../../contexts/AuthContext';
-import { useApp } from '../../contexts/AppContext';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Heart,
+  Download,
+  Bookmark,
+  Share2,
+  User,
+  Eye,
+  MessageCircle,
+} from "lucide-react";
+import { Photo } from "../../types";
+import { useAuth } from "../../contexts/AuthContext";
+import { useApp } from "../../contexts/AppContext";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 interface PhotoCardProps {
   photo: Photo;
@@ -13,43 +22,230 @@ interface PhotoCardProps {
 
 const PhotoCard: React.FC<PhotoCardProps> = ({ photo, showStats = true }) => {
   const { isAuthenticated } = useAuth();
-  const { openPhotoModal, toggleLike, toggleSave, likedPhotos, savedPhotos } = useApp();
+  const { openPhotoModal, toggleSave, savedPhotos } = useApp();
   const [isLoaded, setIsLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(photo.likesCount);
+  const [downloadsCount, setDownloadsCount] = useState(photo.downloadsCount);
+  const [viewsCount, setViewsCount] = useState(photo.viewsCount);
+  const [hasTrackedHover, setHasTrackedHover] = useState(false);
+  const [hasTrackedClick, setHasTrackedClick] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const isLiked = likedPhotos.has(photo.id);
   const isSaved = savedPhotos.has(photo.id);
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  // Check if user has liked this photo
+  useEffect(() => {
     if (isAuthenticated) {
-      toggleLike(photo.id);
+      checkLikeStatus();
+    }
+  }, [isAuthenticated, photo.id]);
+
+  const checkLikeStatus = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/photos/${photo.id}/like-status`,
+        {
+          credentials: "include",
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setIsLiked(data.liked);
+      }
+    } catch (error) {
+      console.error("Failed to check like status:", error);
+    }
+  };
+
+  // Track view function
+  const trackView = async (interaction: string) => {
+    try {
+      console.log(`🔍 Tracking ${interaction} view for photo ${photo.id}`);
+
+      const response = await fetch(
+        `http://localhost:5000/api/photos/${photo.id}/view`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            interaction,
+            timestamp: new Date().toISOString(),
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setViewsCount(data.viewsCount);
+        console.log(
+          `✅ ${interaction} view tracked. New count: ${data.viewsCount}`
+        );
+      }
+    } catch (error) {
+      console.error(`Failed to track ${interaction} view:`, error);
+    }
+  };
+
+  // Handle mouse enter with delay
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+
+    // Track hover view after 1 second of hovering
+    if (!hasTrackedHover) {
+      hoverTimeoutRef.current = setTimeout(() => {
+        trackView("hover");
+        setHasTrackedHover(true);
+      }, 1000); // 1 second delay
+    }
+  };
+
+  // Handle mouse leave
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+
+    // Clear hover timeout if user leaves before 1 second
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+  };
+
+  // Handle any click on the photo card
+  const handlePhotoClick = () => {
+    // Track click view
+    if (!hasTrackedClick) {
+      trackView("click");
+      setHasTrackedClick(true);
+    }
+
+    // Open photo modal
+    openPhotoModal(photo);
+  };
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // Track interaction view
+    trackView("like_interaction");
+
+    if (!isAuthenticated) {
+      toast.error("Please sign in to like photos");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/photos/${photo.id}/like`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsLiked(data.liked);
+        setLikesCount(data.likesCount);
+        toast.success(data.message);
+      } else {
+        throw new Error("Failed to like photo");
+      }
+    } catch (error) {
+      console.error("Like error:", error);
+      toast.error("Failed to like photo");
     }
   };
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isAuthenticated) {
-      toggleSave(photo.id);
+
+    // Track interaction view
+    trackView("save_interaction");
+
+    if (!isAuthenticated) {
+      toast.error("Please sign in to save photos");
+      return;
     }
+    toggleSave(photo.id);
   };
 
-  const handleDownload = (e: React.MouseEvent) => {
+  const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    // In a real app, this would trigger the download
-    console.log('Downloading photo:', photo.id);
+
+    // Track interaction view
+    trackView("download_interaction");
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/photos/${photo.id}/download`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setDownloadsCount(data.downloadsCount);
+
+        // Create download link
+        const link = document.createElement("a");
+        link.href = photo.url;
+        link.download = `${photo.title}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success("Photo downloaded successfully!");
+      } else {
+        throw new Error("Failed to track download");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download photo");
+    }
   };
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    // Track interaction view
+    trackView("share_interaction");
+
     if (navigator.share) {
       navigator.share({
         title: photo.title,
         text: photo.description,
-        url: window.location.origin + `/photos/${photo.id}`
+        url: window.location.origin + `/photos/${photo.id}`,
       });
+    } else {
+      navigator.clipboard.writeText(
+        window.location.origin + `/photos/${photo.id}`
+      );
+      toast.success("Link copied to clipboard");
     }
   };
+
+  const handlePhotographerClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // Track interaction view
+    trackView("photographer_click");
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <motion.div
@@ -58,13 +254,13 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, showStats = true }) => {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
       transition={{ duration: 0.3 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={() => openPhotoModal(photo)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handlePhotoClick}
     >
       <div className="relative bg-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
         {/* Image */}
-        <div 
+        <div
           className="relative"
           style={{ aspectRatio: `${photo.width}/${photo.height}` }}
         >
@@ -72,12 +268,12 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, showStats = true }) => {
             src={photo.url}
             alt={photo.title}
             className={`w-full h-full object-cover transition-opacity duration-300 ${
-              isLoaded ? 'opacity-100' : 'opacity-0'
+              isLoaded ? "opacity-100" : "opacity-0"
             }`}
             onLoad={() => setIsLoaded(true)}
             loading="lazy"
           />
-          
+
           {!isLoaded && (
             <div className="absolute inset-0 bg-neutral-200 animate-pulse" />
           )}
@@ -100,22 +296,26 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, showStats = true }) => {
                 <button
                   onClick={handleLike}
                   className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
-                    isLiked 
-                      ? 'bg-error-500 text-white' 
-                      : 'bg-white/80 text-neutral-700 hover:bg-white hover:text-error-500'
+                    isLiked
+                      ? "bg-error-500 text-white"
+                      : "bg-white/80 text-neutral-700 hover:bg-white hover:text-error-500"
                   }`}
                 >
-                  <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
+                  <Heart
+                    className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`}
+                  />
                 </button>
                 <button
                   onClick={handleSave}
                   className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
-                    isSaved 
-                      ? 'bg-primary-500 text-white' 
-                      : 'bg-white/80 text-neutral-700 hover:bg-white hover:text-primary-500'
+                    isSaved
+                      ? "bg-primary-500 text-white"
+                      : "bg-white/80 text-neutral-700 hover:bg-white hover:text-primary-500"
                   }`}
                 >
-                  <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
+                  <Bookmark
+                    className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`}
+                  />
                 </button>
               </>
             )}
@@ -129,11 +329,14 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, showStats = true }) => {
           >
             <Link
               to={`/@${photo.photographer.username}`}
-              onClick={(e) => e.stopPropagation()}
+              onClick={handlePhotographerClick}
               className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 hover:bg-white transition-colors"
             >
               <img
-                src={photo.photographer.avatar || `https://ui-avatars.com/api/?name=${photo.photographer.firstName}+${photo.photographer.lastName}&background=2563eb&color=ffffff`}
+                src={
+                  photo.photographer.avatar ||
+                  `https://ui-avatars.com/api/?name=${photo.photographer.firstName}+${photo.photographer.lastName}&background=2563eb&color=ffffff`
+                }
                 alt={photo.photographer.username}
                 className="h-6 w-6 rounded-full object-cover"
               />
@@ -170,23 +373,31 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ photo, showStats = true }) => {
                 {photo.description}
               </p>
             )}
-            
+
             <div className="flex items-center justify-between text-xs text-neutral-500">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-1">
                   <Eye className="h-3 w-3" />
-                  <span>{photo.viewsCount.toLocaleString()}</span>
+                  <span>{viewsCount.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Heart className="h-3 w-3" />
-                  <span>{photo.likesCount.toLocaleString()}</span>
+                  <Heart
+                    className={`h-3 w-3 ${
+                      isLiked ? "text-error-500 fill-current" : ""
+                    }`}
+                  />
+                  <span>{likesCount.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Download className="h-3 w-3" />
-                  <span>{photo.downloadsCount.toLocaleString()}</span>
+                  <span>{downloadsCount.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <MessageCircle className="h-3 w-3" />
+                  <span>0</span>
                 </div>
               </div>
-              
+
               <div className="flex space-x-1">
                 {photo.tags.slice(0, 2).map((tag, index) => (
                   <span

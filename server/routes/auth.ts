@@ -123,7 +123,7 @@ router.post("/login", async (req, res) => {
 
     console.log("=== LOGIN ATTEMPT ===");
     console.log("Email:", email);
-    console.log("Password length:", password?.length);
+    console.log("Password provided:", !!password);
 
     if (!email || !password) {
       console.log("Missing email or password");
@@ -140,10 +140,6 @@ router.post("/login", async (req, res) => {
     }
 
     console.log(`✅ User found: ${email}`);
-    console.log(
-      "Stored hash preview:",
-      userWithPassword.passwordHash.substring(0, 30) + "..."
-    );
 
     // Test password comparison
     console.log("Testing password comparison...");
@@ -155,13 +151,6 @@ router.post("/login", async (req, res) => {
 
     if (!isValidPassword) {
       console.log(`❌ Invalid password for user: ${email}`);
-
-      // Additional debug: test with a fresh hash
-      console.log("🔍 Debug: Testing with fresh hash...");
-      const freshHash = await hashPassword(password);
-      const freshTest = await comparePassword(password, freshHash);
-      console.log("Fresh hash test:", freshTest);
-
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
@@ -213,6 +202,76 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error("❌ Login error:", error);
     res.status(500).json({ error: "Login failed" });
+  }
+});
+
+// Change password
+router.post("/change-password", async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const token = req.cookies["auth-token"];
+
+    console.log("🔐 Password change request received");
+
+    if (!token) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ error: "Current and new passwords are required" });
+    }
+
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ error: "New password must be at least 8 characters" });
+    }
+
+    // Validate session and get user
+    const user = await validateSession(token);
+    if (!user) {
+      return res.status(401).json({ error: "Invalid session" });
+    }
+
+    console.log(`🔍 Validating password change for user: ${user.email}`);
+
+    // Get user with password hash
+    const userWithPassword = await getUserWithPassword(user.email);
+    if (!userWithPassword) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await comparePassword(
+      currentPassword,
+      userWithPassword.passwordHash
+    );
+
+    if (!isCurrentPasswordValid) {
+      console.log("❌ Current password is incorrect");
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+
+    console.log("✅ Current password verified");
+
+    // Hash new password
+    const newPasswordHash = await hashPassword(newPassword);
+
+    // Update password in database
+    const { pool } = await import("../database");
+    await pool.execute(
+      "UPDATE users SET password_hash = ?, updated_at = NOW() WHERE id = ?",
+      [newPasswordHash, user.id]
+    );
+
+    console.log(`✅ Password updated for user: ${user.email}`);
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error: any) {
+    console.error("Change password error:", error);
+    res.status(500).json({ error: "Failed to change password" });
   }
 });
 

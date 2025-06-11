@@ -30,8 +30,10 @@ import ContactPage from "./pages/ContactPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import LicensePage from "./pages/LicensePage";
+import MyUploadsPage from "./pages/MyUploadsPage";
 import PhotoModal from "./components/Modals/PhotoModal";
 import UploadModal from "./components/Modals/UploadModal";
+import NotificationsPage from "./pages/NotificationsPage";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
 function App() {
@@ -67,8 +69,12 @@ function App() {
                   <Route path="/dashboard" element={<AnalyticsPage />} />
                   <Route path="/analytics" element={<AnalyticsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/notifications" element={<HomePage />} />
+                  <Route
+                    path="/notifications"
+                    element={<NotificationsPage />}
+                  />
                   <Route path="/saved" element={<SavedPage />} />
+                  <Route path="/my-uploads" element={<MyUploadsPage />} />
 
                   {/* Category Routes */}
                   <Route

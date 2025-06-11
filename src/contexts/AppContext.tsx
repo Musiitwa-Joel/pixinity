@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Photo, Collection, SearchFilters, Notification } from '../types';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { Photo, Collection, SearchFilters, Notification } from "../types";
+import toast from "react-hot-toast";
 
 interface AppContextType {
   photos: Photo[];
@@ -30,7 +31,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const useApp = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error('useApp must be used within an AppProvider');
+    throw new Error("useApp must be used within an AppProvider");
   }
   return context;
 };
@@ -70,7 +71,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   const toggleLike = (photoId: string) => {
-    setLikedPhotos(prev => {
+    // This is now handled by individual components making API calls
+    // Keep this for backward compatibility but it's not used
+    setLikedPhotos((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(photoId)) {
         newSet.delete(photoId);
@@ -81,33 +84,71 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     });
   };
 
-  const toggleSave = (photoId: string) => {
-    setSavedPhotos(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(photoId)) {
-        newSet.delete(photoId);
+  const toggleSave = async (photoId: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/photos/${photoId}/save`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setSavedPhotos((prev) => {
+          const newSet = new Set(prev);
+          if (data.saved) {
+            newSet.add(photoId);
+          } else {
+            newSet.delete(photoId);
+          }
+          return newSet;
+        });
+        toast.success(data.message);
       } else {
-        newSet.add(photoId);
+        throw new Error("Failed to save photo");
       }
-      return newSet;
-    });
+    } catch (error) {
+      console.error("Save error:", error);
+      toast.error("Failed to save photo");
+    }
   };
 
-  const toggleFollow = (userId: string) => {
-    setFollowedUsers(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(userId)) {
-        newSet.delete(userId);
+  const toggleFollow = async (userId: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/photos/users/${userId}/follow`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setFollowedUsers((prev) => {
+          const newSet = new Set(prev);
+          if (data.following) {
+            newSet.add(userId);
+          } else {
+            newSet.delete(userId);
+          }
+          return newSet;
+        });
+        toast.success(data.message);
       } else {
-        newSet.add(userId);
+        throw new Error("Failed to follow user");
       }
-      return newSet;
-    });
+    } catch (error) {
+      console.error("Follow error:", error);
+      toast.error("Failed to follow user");
+    }
   };
 
   const markNotificationAsRead = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(notification =>
+    setNotifications((prev) =>
+      prev.map((notification) =>
         notification.id === notificationId
           ? { ...notification, read: true }
           : notification
@@ -136,12 +177,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     toggleLike,
     toggleSave,
     toggleFollow,
-    markNotificationAsRead
+    markNotificationAsRead,
   };
 
-  return (
-    <AppContext.Provider value={value}>
-      {children}
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
