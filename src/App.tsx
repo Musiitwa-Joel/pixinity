@@ -35,6 +35,7 @@ import PhotoModal from "./components/Modals/PhotoModal";
 import UploadModal from "./components/Modals/UploadModal";
 import NotificationsPage from "./pages/NotificationsPage";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
   return (
@@ -75,6 +76,9 @@ function App() {
                   />
                   <Route path="/saved" element={<SavedPage />} />
                   <Route path="/my-uploads" element={<MyUploadsPage />} />
+
+                  {/* Admin Routes */}
+                  <Route path="/admin/*" element={<AdminPage />} />
 
                   {/* Category Routes */}
                   <Route

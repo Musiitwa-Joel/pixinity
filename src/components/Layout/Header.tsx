@@ -23,6 +23,7 @@ import {
   Download,
   Clock,
   Trash2,
+  Shield,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
@@ -52,6 +53,10 @@ const Header: React.FC = () => {
     { code: "zh", name: "中文", flag: "🇨🇳" },
     { code: "ar", name: "العربية", flag: "🇸🇦" },
   ];
+
+  // Check if user is admin - either super admin by email or admin by role
+  const isAdmin =
+    user?.email === "musiitwajoel@gmail.com" || user?.role === "admin";
 
   // Fetch notifications when authenticated
   useEffect(() => {
@@ -328,6 +333,17 @@ const Header: React.FC = () => {
 
             {isAuthenticated ? (
               <div className="flex items-center space-x-2 ml-4">
+                {/* Admin Button - Only show for admin users */}
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="flex items-center space-x-1 px-3 py-2 text-sm font-medium bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                  >
+                    <Shield className="h-4 w-4" />
+                    <span>Admin</span>
+                  </Link>
+                )}
+
                 {/* Upload Button */}
                 <button
                   onClick={openUploadModal}
@@ -525,6 +541,18 @@ const Header: React.FC = () => {
                             <Settings className="h-4 w-4" />
                             <span>Settings</span>
                           </Link>
+
+                          {/* Admin Link - Only show for admin users */}
+                          {isAdmin && (
+                            <Link
+                              to="/admin"
+                              className="flex items-center space-x-3 px-4 py-2 text-sm text-purple-600 hover:bg-purple-50"
+                              onClick={() => setIsProfileMenuOpen(false)}
+                            >
+                              <Shield className="h-4 w-4" />
+                              <span>Admin Panel</span>
+                            </Link>
+                          )}
                         </div>
 
                         <div className="border-t border-neutral-100 pt-1">
@@ -608,6 +636,17 @@ const Header: React.FC = () => {
               >
                 Collections
               </Link>
+
+              {/* Admin Link - Only show for admin users */}
+              {isAuthenticated && isAdmin && (
+                <Link
+                  to="/admin"
+                  className="block py-2 text-sm font-medium text-purple-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Admin Panel
+                </Link>
+              )}
 
               {/* Language Selector - Mobile */}
               <div className="relative">

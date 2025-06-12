@@ -9,7 +9,11 @@ import collectionUploadsRoutes from "./routes/collectionUploads";
 import photosRoutes from "./routes/photos";
 import notificationsRoutes from "./routes/notifications";
 import analyticsRoutes from "./routes/analytics";
+import countryAnalyticsRoutes from "./routes/countryAnalytics";
 import usersRoutes from "./routes/users";
+import adminDashboardRoutes from "./routes/adminDashboard";
+import adminUsersRoutes from "./routes/adminUsers";
+import homepageRoutes from "./routes/homepage";
 import { testConnection } from "./database";
 
 // Load environment variables
@@ -46,7 +50,11 @@ app.use("/api/collection-uploads", collectionUploadsRoutes);
 app.use("/api/photos", photosRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/country-analytics", countryAnalyticsRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/admin", adminDashboardRoutes);
+app.use("/api/admin/users", adminUsersRoutes);
+app.use("/api/homepage", homepageRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

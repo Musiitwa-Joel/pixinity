@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import sharp from "sharp";
+import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
 
@@ -366,6 +367,177 @@ router.get("/:userId/liked-photos", async (req, res) => {
   }
 });
 
+// Get user's saved photos
+router.get("/:userId/saved-photos", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const {
+      limit = 20,
+      offset = 0,
+      search = "",
+      category = "",
+      sort = "newest",
+    } = req.query;
+
+    console.log(`🔍 Fetching saved photos for user ${userId}`);
+
+    // Build the query based on sort option
+    let orderClause = "ORDER BY s.created_at DESC"; // default: newest
+    if (sort === "oldest") {
+      orderClause = "ORDER BY s.created_at ASC";
+    } else if (sort === "popular") {
+      orderClause = "ORDER BY p.likes DESC, p.views DESC";
+    }
+
+    // Build the search and category filters
+    let whereClause = "WHERE s.user_id = ? AND p.status = 'live'";
+    const queryParams: any[] = [userId];
+
+    if (search) {
+      whereClause += " AND (p.title LIKE ? OR p.description LIKE ?)";
+      queryParams.push(`%${search}%`, `%${search}%`);
+    }
+
+    if (category) {
+      whereClause += " AND cat.name = ?";
+      queryParams.push(category);
+    }
+
+    // Add limit and offset
+    queryParams.push(parseInt(limit as string), parseInt(offset as string));
+
+    const [rows] = await pool.execute(
+      `SELECT 
+        p.id, p.title, p.description, p.file_path, p.thumbnail_path,
+        p.width, p.height, p.views, p.likes, p.downloads, p.created_at, p.updated_at,
+        u.id as photographer_id, u.username as photographer_username,
+        u.first_name as photographer_first_name, u.last_name as photographer_last_name,
+        u.avatar as photographer_avatar, u.verified as photographer_verified, u.role as photographer_role,
+        GROUP_CONCAT(DISTINCT t.name) as tags,
+        GROUP_CONCAT(DISTINCT cat.name) as categories,
+        s.created_at as saved_at
+      FROM saved_photos s
+      JOIN photos p ON s.photo_id = p.id
+      JOIN users u ON p.user_id = u.id
+      LEFT JOIN photo_tags pt ON p.id = pt.photo_id
+      LEFT JOIN tags t ON pt.tag_id = t.id
+      LEFT JOIN photo_categories pc ON p.id = pc.photo_id
+      LEFT JOIN categories cat ON pc.category_id = cat.id
+      ${whereClause}
+      GROUP BY p.id, s.created_at
+      ${orderClause}
+      LIMIT ? OFFSET ?`,
+      queryParams
+    );
+
+    const photos = (rows as any[]).map((photo) => ({
+      id: photo.id.toString(),
+      uuid: photo.id.toString(), // Use ID as UUID for compatibility
+      title: photo.title,
+      description: photo.description,
+      url: photo.file_path,
+      thumbnailUrl: photo.thumbnail_path,
+      width: photo.width,
+      height: photo.height,
+      orientation:
+        photo.width > photo.height
+          ? "landscape"
+          : photo.width < photo.height
+          ? "portrait"
+          : "square",
+      category: photo.categories?.split(",")[0] || "Other",
+      tags: photo.tags ? photo.tags.split(",") : [],
+      color: "#000000",
+      license: "free",
+      photographer: {
+        id: photo.photographer_id.toString(),
+        username: photo.photographer_username,
+        firstName: photo.photographer_first_name,
+        lastName: photo.photographer_last_name,
+        avatar: photo.photographer_avatar,
+        verified: Boolean(photo.photographer_verified),
+        role: photo.photographer_role,
+      },
+      likesCount: photo.likes,
+      downloadsCount: photo.downloads,
+      viewsCount: photo.views,
+      featured: false,
+      approved: true,
+      createdAt: photo.created_at,
+      updatedAt: photo.updated_at,
+      savedAt: photo.saved_at,
+    }));
+
+    // Get total count with the same filters
+    const countParams = queryParams.slice(0, -2); // Remove limit and offset
+    const [countRows] = await pool.execute(
+      `SELECT COUNT(DISTINCT p.id) as total
+       FROM saved_photos s
+       JOIN photos p ON s.photo_id = p.id
+       LEFT JOIN photo_categories pc ON p.id = pc.photo_id
+       LEFT JOIN categories cat ON pc.category_id = cat.id
+       ${whereClause}`,
+      countParams
+    );
+    const total = (countRows as any[])[0].total;
+
+    console.log(`✅ Found ${photos.length} saved photos for user ${userId}`);
+
+    res.json({
+      photos,
+      total,
+      hasMore: parseInt(offset as string) + parseInt(limit as string) < total,
+    });
+  } catch (error) {
+    console.error("Get saved photos error:", error);
+    res.status(500).json({ error: "Failed to fetch saved photos" });
+  }
+});
+
+// Get saved photos stats
+router.get("/:userId/saved-stats", requireAuth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const requestingUserId = req.user.id;
+
+    // Only allow users to see their own stats
+    if (userId !== requestingUserId.toString()) {
+      return res
+        .status(403)
+        .json({ error: "Not authorized to view these stats" });
+    }
+
+    // Get unique categories count
+    const [categoriesResult] = await pool.execute(
+      `SELECT COUNT(DISTINCT cat.name) as uniqueCategories
+       FROM saved_photos s
+       JOIN photos p ON s.photo_id = p.id
+       LEFT JOIN photo_categories pc ON p.id = pc.photo_id
+       LEFT JOIN categories cat ON pc.category_id = cat.id
+       WHERE s.user_id = ?`,
+      [userId]
+    );
+
+    // Get unique photographers count
+    const [photographersResult] = await pool.execute(
+      `SELECT COUNT(DISTINCT p.user_id) as uniquePhotographers
+       FROM saved_photos s
+       JOIN photos p ON s.photo_id = p.id
+       WHERE s.user_id = ?`,
+      [userId]
+    );
+
+    res.json({
+      uniqueCategories: (categoriesResult as any[])[0].uniqueCategories || 0,
+      uniquePhotographers:
+        (photographersResult as any[])[0].uniquePhotographers || 0,
+    });
+  } catch (error) {
+    console.error("Get saved stats error:", error);
+    res.status(500).json({ error: "Failed to fetch saved stats" });
+  }
+});
+
 // Get user's tab counts (for badges)
 router.get("/:userId/tab-counts", async (req, res) => {
   try {
@@ -417,7 +589,7 @@ router.get("/:userId/tab-counts", async (req, res) => {
     );
     const followingPhotosCount = (followingPhotosRows as any[])[0].count;
 
-    console.log(`✅ Tab counts for user ${userId}:`, {
+    console.log(`📊 Tab counts for user ${userId}:`, {
       photos: photosCount,
       collections: collectionsCount,
       liked: likedCount,

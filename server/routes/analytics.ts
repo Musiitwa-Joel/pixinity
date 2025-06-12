@@ -72,7 +72,7 @@ router.get("/user/:userId", requireAuth, async (req, res) => {
     // Get top performing photos
     const [topPhotosRows] = await pool.execute(
       `SELECT 
-        id, title, file_path, views, likes, downloads,
+        id, title, file_path as url, thumbnail_path, views, likes, downloads,
         (views + likes * 2 + downloads * 3) as engagement_score
       FROM photos 
       WHERE user_id = ? AND status = 'live'
@@ -81,24 +81,13 @@ router.get("/user/:userId", requireAuth, async (req, res) => {
       [userId]
     );
 
-    const topPhotos = (topPhotosRows as any[]).map((photo) => ({
-      id: photo.id.toString(),
-      title: photo.title,
-      url: photo.file_path,
-      views: photo.views,
-      likes: photo.likes,
-      downloads: photo.downloads,
-      engagementScore: photo.engagement_score,
-    }));
+    const topPhotos = topPhotosRows as any[];
 
-    // Get views over time (last 30 days)
+    // Get views over time (last X days)
     const [viewsOverTimeRows] = await pool.execute(
       `SELECT 
         DATE(pv.viewed_at) as date,
-        COUNT(DISTINCT CASE 
-          WHEN pv.user_id IS NOT NULL THEN pv.user_id 
-          ELSE pv.ip_address 
-        END) as views
+        COUNT(DISTINCT pv.id) as views
       FROM photo_views pv
       JOIN photos p ON pv.photo_id = p.id
       WHERE p.user_id = ? 
@@ -108,10 +97,7 @@ router.get("/user/:userId", requireAuth, async (req, res) => {
       [userId, days]
     );
 
-    const viewsOverTime = (viewsOverTimeRows as any[]).map((row) => ({
-      date: row.date,
-      views: row.views,
-    }));
+    const viewsOverTime = viewsOverTimeRows as any[];
 
     // Get likes over time
     const [likesOverTimeRows] = await pool.execute(
@@ -127,10 +113,7 @@ router.get("/user/:userId", requireAuth, async (req, res) => {
       [userId, days]
     );
 
-    const likesOverTime = (likesOverTimeRows as any[]).map((row) => ({
-      date: row.date,
-      likes: row.likes,
-    }));
+    const likesOverTime = likesOverTimeRows as any[];
 
     // Get downloads over time
     const [downloadsOverTimeRows] = await pool.execute(
@@ -146,10 +129,7 @@ router.get("/user/:userId", requireAuth, async (req, res) => {
       [userId, days]
     );
 
-    const downloadsOverTime = (downloadsOverTimeRows as any[]).map((row) => ({
-      date: row.date,
-      downloads: row.downloads,
-    }));
+    const downloadsOverTime = downloadsOverTimeRows as any[];
 
     // Get follower growth
     const [followersOverTimeRows] = await pool.execute(
@@ -164,10 +144,7 @@ router.get("/user/:userId", requireAuth, async (req, res) => {
       [userId, days]
     );
 
-    const followersOverTime = (followersOverTimeRows as any[]).map((row) => ({
-      date: row.date,
-      newFollowers: row.new_followers,
-    }));
+    const followersOverTime = followersOverTimeRows as any[];
 
     // Get category performance
     const [categoryStatsRows] = await pool.execute(
@@ -187,14 +164,7 @@ router.get("/user/:userId", requireAuth, async (req, res) => {
       [userId]
     );
 
-    const categoryStats = (categoryStatsRows as any[]).map((row) => ({
-      category: row.category || "Uncategorized",
-      photoCount: row.photoCount,
-      totalViews: row.totalViews,
-      totalLikes: row.totalLikes,
-      totalDownloads: row.totalDownloads,
-      avgViews: Math.round(row.avgViews),
-    }));
+    const categoryStats = categoryStatsRows as any[];
 
     res.json({
       overview: {

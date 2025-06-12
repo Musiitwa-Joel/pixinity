@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import type React from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
-  User,
   MapPin,
-  Link as LinkIcon,
+  LinkIcon,
   Instagram,
   Twitter,
   Grid3X3,
@@ -12,21 +14,19 @@ import {
   Bookmark,
   Users,
   Settings,
-  Edit3,
   Share2,
   BarChart3,
-  Image,
-  Clock,
+  ImageIcon,
   TrendingUp,
-  Eye,
-  Download,
   Plus,
   Camera,
+  CheckCircle,
+  BadgeCheck,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useApp } from "../contexts/AppContext";
 import PhotoGrid from "../components/Common/PhotoGrid";
-import { Photo, User as UserType } from "../types";
+import type { Photo, User as UserType } from "../types";
 import toast from "react-hot-toast";
 
 type ProfileTab = "photos" | "collections" | "liked" | "saved" | "following";
@@ -436,27 +436,13 @@ const ProfilePage: React.FC = () => {
                 <img
                   src={
                     user.avatar ||
-                    `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=2563eb&color=ffffff&size=200`
+                    `https://ui-avatars.com/api/?name=${
+                      user.firstName || "/placeholder.svg"
+                    }+${user.lastName}&background=2563eb&color=ffffff&size=200`
                   }
                   alt={`${user.firstName} ${user.lastName}`}
                   className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white shadow-md"
                 />
-                {user.verified && (
-                  <div className="absolute bottom-0 right-0 bg-primary-500 text-white p-1 rounded-full">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg\"
-                      className="h-4 w-4\"
-                      viewBox="0 0 20 20\"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd\"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z\"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -464,16 +450,21 @@ const ProfilePage: React.FC = () => {
             <div className="flex-1">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-neutral-900 mb-1">
-                    {user.firstName} {user.lastName}
-                  </h1>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h1 className="text-2xl md:text-3xl font-bold text-neutral-900">
+                      {user.firstName} {user.lastName}
+                    </h1>
+                    {user.verified && (
+                      <BadgeCheck className="h-6 w-6 text-primary-500" />
+                    )}
+                  </div>
                   <p className="text-neutral-600">@{user.username}</p>
                 </div>
 
                 <div className="flex mt-4 md:mt-0 space-x-3">
                   {isCurrentUser ? (
                     <>
-                      <Link to="/settings\" className="btn-outline">
+                      <Link to="/settings" className="btn-outline">
                         <Settings className="mr-2 h-4 w-4" />
                         Edit Profile
                       </Link>
@@ -645,7 +636,7 @@ const ProfilePage: React.FC = () => {
                   : "text-neutral-600 hover:bg-neutral-100"
               }`}
             >
-              <Image className="h-4 w-4" />
+              <ImageIcon className="h-4 w-4" />
               <span>Collections</span>
               {isLoadingTabCounts ? (
                 <div className="w-5 h-5 rounded-full bg-neutral-200 animate-pulse"></div>
@@ -825,13 +816,15 @@ const ProfilePage: React.FC = () => {
                       <div className="aspect-video bg-neutral-200 relative overflow-hidden">
                         {collection.coverPhoto ? (
                           <img
-                            src={collection.coverPhoto.url}
+                            src={
+                              collection.coverPhoto.url || "/placeholder.svg"
+                            }
                             alt={collection.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-neutral-200 to-neutral-300 flex items-center justify-center">
-                            <Image className="h-12 w-12 text-neutral-400" />
+                            <ImageIcon className="h-12 w-12 text-neutral-400" />
                           </div>
                         )}
                         <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
