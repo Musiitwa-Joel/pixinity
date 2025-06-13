@@ -1,77 +1,57 @@
-"use client";
-
-import type React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
+  TrendingUp,
   Camera,
   Users,
   Download,
+  Eye,
   Sparkles,
   ArrowRight,
   Play,
   Star,
   Award,
   Zap,
-  ImageIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import PhotoGrid from "../components/Common/PhotoGridHomePage";
+import { mockPhotos } from "../data/mockData";
 import { useApp } from "../contexts/AppContext";
-import type { Photo } from "../types";
+import { Photo } from "../types";
 
 const HomePage: React.FC = () => {
   const { setPhotos } = useApp();
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [featuredPhotos, setFeaturedPhotos] = useState<Photo[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Load photos from the database
     const loadPhotos = async () => {
       setIsLoading(true);
-      setError(null);
       try {
         const response = await fetch(
           "http://localhost:5000/api/homepage/photos"
         );
         if (response.ok) {
           const data = await response.json();
-
-          // More robust deduplication - ensure we have valid IDs
-          const validPhotos = data.filter((photo: Photo) => photo && photo.id);
-
-          // Deduplicate all photos first
-          const uniqueData = Array.from(
-            new Map(
-              validPhotos.map((photo: Photo) => [photo.id.toString(), photo])
-            ).values()
-          );
-
-          // Filter featured photos from the deduplicated data
-          const featured = uniqueData.filter((photo: Photo) => photo.featured);
-
-          // Log the deduplication results
-          console.log(
-            `Original photos: ${data.length}, Valid photos: ${validPhotos.length}, After deduplication: ${uniqueData.length}`
-          );
-          console.log(`Featured photos: ${featured.length}`);
-
+          // Filter featured photos from the database
+          const featured = data.filter((photo: Photo) => photo.featured);
           setFeaturedPhotos(featured);
-          setPhotos(uniqueData);
+          setPhotos(data);
+          console.log("Loaded featured photos:", featured.length);
         } else {
           console.error("Failed to load photos from API");
-          setError("Failed to load photos. Please try again later.");
-          setFeaturedPhotos([]);
-          setPhotos([]);
+          // Fallback to mock data if API fails
+          setFeaturedPhotos(mockPhotos.filter((photo) => photo.featured));
+          setPhotos(mockPhotos);
         }
       } catch (error) {
         console.error("Error loading photos:", error);
-        setError("Error connecting to the server. Please try again later.");
-        setFeaturedPhotos([]);
-        setPhotos([]);
+        // Fallback to mock data
+        setFeaturedPhotos(mockPhotos.filter((photo) => photo.featured));
+        setPhotos(mockPhotos);
       } finally {
         setIsLoading(false);
       }
@@ -143,7 +123,7 @@ const HomePage: React.FC = () => {
           <div
             className="absolute inset-0 opacity-20"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%239C92AC' fillOpacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
             }}
           ></div>
         </div>
@@ -153,29 +133,17 @@ const HomePage: React.FC = () => {
           <motion.div
             className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-blue-400/30 to-purple-400/30 rounded-full blur-xl"
             animate={{ y: [0, -20, 0], x: [0, 10, 0] }}
-            transition={{
-              duration: 8,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
             className="absolute top-40 right-32 w-24 h-24 bg-gradient-to-r from-pink-400/30 to-red-400/30 rounded-full blur-xl"
             animate={{ y: [0, 20, 0], x: [0, -15, 0] }}
-            transition={{
-              duration: 6,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
             className="absolute bottom-32 left-1/4 w-40 h-40 bg-gradient-to-r from-green-400/20 to-blue-400/20 rounded-full blur-2xl"
             animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
-            transition={{
-              duration: 10,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
         </div>
 
@@ -318,7 +286,7 @@ const HomePage: React.FC = () => {
         <motion.div
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
           animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+          transition={{ duration: 2, repeat: Infinity }}
         >
           <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
             <div className="w-1 h-3 bg-white/70 rounded-full mt-2"></div>
@@ -363,7 +331,7 @@ const HomePage: React.FC = () => {
                   className="group block relative overflow-hidden rounded-2xl aspect-square shadow-lg hover:shadow-2xl transition-all duration-500"
                 >
                   <img
-                    src={category.image || "/placeholder.svg"}
+                    src={category.image}
                     alt={category.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
@@ -422,58 +390,13 @@ const HomePage: React.FC = () => {
             </Link>
           </motion.div>
 
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, index) => (
-                <div
-                  key={index}
-                  className="aspect-[4/3] bg-neutral-200 rounded-xl overflow-hidden animate-pulse flex items-center justify-center"
-                >
-                  <div className="w-12 h-12 border-4 border-neutral-300 border-t-neutral-400 rounded-full animate-spin"></div>
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="text-center py-16 bg-white/50 backdrop-blur-sm rounded-xl">
-              <div className="max-w-md mx-auto">
-                <div className="h-32 w-32 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <ImageIcon className="h-16 w-16 text-neutral-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-neutral-900 mb-2">
-                  Unable to load photos
-                </h3>
-                <p className="text-neutral-600 mb-6">{error}</p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="btn-primary px-6 py-3 rounded-lg"
-                >
-                  Refresh Page
-                </button>
-              </div>
-            </div>
-          ) : featuredPhotos.length > 0 ? (
-            <PhotoGrid photos={featuredPhotos} loading={false} />
+          {featuredPhotos && featuredPhotos.length > 0 ? (
+            <PhotoGrid photos={featuredPhotos} loading={isLoading} />
           ) : (
-            <div className="text-center py-16 bg-white/50 backdrop-blur-sm rounded-xl">
-              <div className="max-w-md mx-auto">
-                <div className="h-32 w-32 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <ImageIcon className="h-16 w-16 text-neutral-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-neutral-900 mb-2">
-                  No featured photos available
-                </h3>
-                <p className="text-neutral-600 mb-6">
-                  Our editorial team is currently curating the next collection
-                  of featured photographs.
-                </p>
-                <Link
-                  to="/explore"
-                  className="btn-primary px-6 py-3 rounded-lg"
-                >
-                  Explore All Photos
-                </Link>
-              </div>
-            </div>
+            <PhotoGrid
+              photos={mockPhotos.filter((photo) => photo.featured)}
+              loading={isLoading}
+            />
           )}
         </div>
       </section>
@@ -484,7 +407,7 @@ const HomePage: React.FC = () => {
         <div
           className="absolute inset-0 opacity-30"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fillRule='evenodd'%3E%3Cg fill='%23ffffff' fillOpacity='0.05'%3E%3Cpath d='M50 50c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10-10-4.5-10-10zm-20 0c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10-10-4.5-10-10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M50 50c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10-10-4.5-10-10zm-20 0c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10-10-4.5-10-10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}
         ></div>
 

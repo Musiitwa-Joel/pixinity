@@ -1,7 +1,5 @@
-"use client";
-
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { Photo } from "../../types";
 import PhotoCard from "./PhotoCardNoStats";
 import { motion } from "framer-motion";
@@ -21,15 +19,22 @@ const PhotoGridHomePage: React.FC<PhotoGridProps> = ({
   onLoadMore,
 }) => {
   const [visiblePhotos, setVisiblePhotos] = useState<Photo[]>([]);
+  const processedPhotoIds = useRef(new Set<string>());
 
   useEffect(() => {
-    // Remove duplicates by creating a Map with photo.id as key
-    const uniquePhotos = Array.from(
-      new Map(photos.map((photo) => [photo.id, photo])).values()
-    );
-    console.log(
-      `PhotoGrid: Original photos: ${photos.length}, After deduplication: ${uniquePhotos.length}`
-    );
+    // Reset the state when photos array changes
+    setVisiblePhotos([]);
+    processedPhotoIds.current = new Set<string>();
+
+    // Create a deduplicated array of photos
+    const uniquePhotos: Photo[] = [];
+
+    for (const photo of photos) {
+      if (!processedPhotoIds.current.has(photo.id)) {
+        uniquePhotos.push(photo);
+        processedPhotoIds.current.add(photo.id);
+      }
+    }
 
     // Animate photos in batches
     const animatePhotos = async () => {
@@ -40,7 +45,6 @@ const PhotoGridHomePage: React.FC<PhotoGridProps> = ({
       }
     };
 
-    setVisiblePhotos([]);
     animatePhotos();
   }, [photos]);
 
@@ -83,7 +87,7 @@ const PhotoGridHomePage: React.FC<PhotoGridProps> = ({
       <div className="masonry-grid">
         {visiblePhotos.map((photo, index) => (
           <motion.div
-            key={photo.id}
+            key={`${photo.id}-${index}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
