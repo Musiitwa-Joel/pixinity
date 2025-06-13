@@ -153,6 +153,103 @@ router.delete("/sections/:id", async (req, res) => {
   }
 });
 
+// Get all photos for handpicked masterpieces section
+router.get("/photos", async (req, res) => {
+  try {
+    console.log("Fetching photos for homepage...");
+
+    // Check if is_featured column exists in photos table
+    const [columnsResult] = await pool.execute(
+      `SELECT COUNT(*) as count FROM information_schema.columns 
+       WHERE table_schema = DATABASE() AND table_name = 'photos' AND column_name = 'is_featured'`
+    );
+
+    const columnExists = (columnsResult as RowDataPacket[])[0].count > 0;
+
+    // Add is_featured column if it doesn't exist
+    if (!columnExists) {
+      console.log("Adding is_featured column to photos table...");
+      await pool.execute(
+        "ALTER TABLE photos ADD COLUMN is_featured TINYINT(1) DEFAULT 0"
+      );
+    }
+
+    const [rows] = await pool.execute(
+      `SELECT 
+        p.id, p.title, p.description, p.file_path, p.thumbnail_path,
+        p.width, p.height, p.views, p.likes, p.downloads, p.is_featured,
+        p.created_at, p.updated_at,
+        u.id as photographer_id, u.username as photographer_username,
+        u.first_name as photographer_first_name, u.last_name as photographer_last_name,
+        u.avatar as photographer_avatar, u.verified as photographer_verified
+      FROM photos p
+      JOIN users u ON p.user_id = u.id
+      WHERE p.status = 'live'
+      ORDER BY p.is_featured DESC, p.views DESC, p.likes DESC
+      LIMIT 20`
+    );
+
+    const photos = (rows as RowDataPacket[]).map((photo) => ({
+      id: photo.id.toString(),
+      title: photo.title,
+      description: photo.description,
+      url: photo.file_path,
+      thumbnailUrl: photo.thumbnail_path,
+      width: photo.width,
+      height: photo.height,
+      orientation:
+        photo.width > photo.height
+          ? "landscape"
+          : photo.width < photo.height
+          ? "portrait"
+          : "square",
+      viewsCount: photo.views,
+      likesCount: photo.likes,
+      downloadsCount: photo.downloads,
+      featured: Boolean(photo.is_featured),
+      photographer: {
+        id: photo.photographer_id.toString(),
+        username: photo.photographer_username,
+        firstName: photo.photographer_first_name,
+        lastName: photo.photographer_last_name,
+        avatar: photo.photographer_avatar,
+        verified: Boolean(photo.photographer_verified),
+      },
+      createdAt: photo.created_at,
+      updatedAt: photo.updated_at,
+    }));
+
+    console.log(`Fetched ${photos.length} photos for homepage`);
+    res.json(photos);
+  } catch (error) {
+    console.error("Error fetching homepage photos:", error);
+    res.status(500).json({ error: "Failed to fetch homepage photos" });
+  }
+});
+
+// Update featured status of a photo
+router.put("/photos/:id/featured", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { featured } = req.body;
+
+    console.log(`Updating featured status of photo ${id} to ${featured}`);
+
+    await pool.execute(
+      "UPDATE photos SET is_featured = ?, updated_at = NOW() WHERE id = ?",
+      [featured ? 1 : 0, id]
+    );
+
+    res.json({
+      message: `Photo ${featured ? "featured" : "unfeatured"} successfully`,
+      featured,
+    });
+  } catch (error) {
+    console.error("Error updating photo featured status:", error);
+    res.status(500).json({ error: "Failed to update photo featured status" });
+  }
+});
+
 // Helper function to insert default sections
 async function insertDefaultSections() {
   const defaultSections = [
@@ -230,6 +327,19 @@ async function insertDefaultSections() {
       },
       isVisible: true,
       order: 3,
+    },
+    {
+      id: "masterpieces-section",
+      title: "Handpicked Masterpieces",
+      type: "masterpieces",
+      content: {
+        heading: "Handpicked Masterpieces",
+        subheading:
+          "Curated selection of exceptional photography from our community",
+        photoIds: [],
+      },
+      isVisible: true,
+      order: 4,
     },
   ];
 
